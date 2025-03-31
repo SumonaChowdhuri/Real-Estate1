@@ -13,11 +13,10 @@ const LayoutAgent=()=>
             <Sidebar/>
             <div className="content">
             <Header className="header" />
-            <Dashboard className="dashboard" />
-            <Search className="dashboard" />
-            <Agent className="dashboard" />
-            
-            </div>
+            {/* <Dashboard className="dashboard" /> */}
+            <Search className="search"/>
+            <Agent className="agent" />
+        </div>
         </div>
         </div>
 

@@ -12,5 +12,5 @@ code {
     monospace;
 }
 :root {
-  --primary_color:#4F86CB; 
+  --primary_color:rgb(4,4,44)
 } 

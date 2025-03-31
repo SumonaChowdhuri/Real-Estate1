@@ -12,7 +12,6 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-
         <Route path="/SignIn" element={<SignIn />}/>
         <Route path="/" element={<LayoutDashboard/>}/>
         <Route path="/Forgot" element={<Forgot />}/>

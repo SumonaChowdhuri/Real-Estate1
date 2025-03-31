@@ -1,133 +1,194 @@
-import * as React from 'react';
-import Paper from '@mui/material/Paper';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
-import TableRow from '@mui/material/TableRow';
-import IconButton from '@mui/material/IconButton';
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import { useState } from "react";
+import { Table,Select,MenuItem, TableHead, TableBody, TableRow, TableCell, IconButton, Modal, Box, Typography, Grid, TextField, Button ,TableContainer,Paper} from "@mui/material";
+import { Visibility, Edit, Delete, Close as CloseIcon } from "@mui/icons-material";
 
-const columns = [
-  { id: 'SI_no', label: 'SI NO.', flex: 1 },
-  { id: 'propertyTitle', label: 'Property Title', flex: 1, align: 'right' },
-  { id: 'propertyType', label: 'Property Type', flex: 1, align: 'right' },
-  { id: 'address', label: 'Address', flex: 1, align: 'right' },
-  { id: 'price', label: 'Price', flex: 1, align: 'right', format: (value) => value.toFixed(2) },
-  { id: 'areaSqft', label: 'Area sqft', flex: 1, align: 'right', format: (value) => value.toFixed(2) },
-  { id: 'furnishing', label: 'Furnishing', flex: 1, align: 'right' },
-  { id: 'status', label: 'Status', flex: 1, align: 'right' },
-  { id: 'action', label: 'Action', flex: 1, align: 'center' },
-];
+const PropertyTable = () => {
+  const [data, setData] = useState([
+    { id: 1, Name: "Luxury", PropertyType: "Apartment", Address: "Ranchi",  Price: 100000, AreaSqft: 100, Furnishing: "furnished", Status: "Active" },
+    { id: 2, Name: "2bhk", PropertyType: "Apartment", Address: "Kolkata",  Price: 100000, AreaSqft: 100, Furnishing: "furnished", Status: "Active" },
+    { id: 3, Name: "1bhk", PropertyType: "Apartment", Address: "MP",  Price: 100000, AreaSqft: 100, Furnishing: "furnished", Status: "InActive" },
+  ]);
 
-function createData(SI_no, propertyTitle, propertyType, address, price, areaSqft, furnishing, status) {
-  return { SI_no, propertyTitle, propertyType, address, price, areaSqft, furnishing, status };
-}
-
-const rows = [
-  createData('1', 'Luxury', 'Apartment', 'Ranchi', 100000, 100, 'furnished', 'sold'),
-  createData('2', 'Luxury', 'Apartment', 'Ranchi', 100000, 100, 'furnished', 'sold'),
-  createData('3','Luxury', 'Apartment','Ranchi',100000,100,'furnished','sold'),
-  createData('4','Luxury', 'Apartment','Ranchi',100000,100,'furnished','sold'),
-  createData('5','Luxury', 'Apartment','Ranchi',100000,100,'furnished','sold'),
-  createData('6','Luxury', 'Apartment','Ranchi',100000,100,'furnished','sold' ),
-  createData('7','Luxury', 'Apartment','Ranchi',100000,100,'furnished','sold' ),
-  createData('8','Luxury', 'Apartment','Ranchi',100000,100,'furnished','sold' ),
-  createData('9','Luxury', 'Apartment','Ranchi',100000,100,'furnished','sold' ),
-  createData('10','Luxury', 'Apartment','Ranchi',100000,100,'furnished','sold'),
-  createData('11','Luxury', 'Apartment','Ranchi',100000,100,'furnished','sold' ),
-];
-
-export default function StickyHeadTable() {
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
+  const modalStyle = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: '80%',
+    maxWidth: 800,
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    p: 4,
+    borderRadius: 1,
+    maxHeight: '90vh',
+    overflow: 'auto'
   };
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(+event.target.value);
-    setPage(0); // Reset to first page when rows per page changes
+  const deleteModalStyle = {
+    ...modalStyle,
+    width: 400,
+    textAlign: 'center'
   };
 
-  const handleDelete = (id) => {
-    console.log('Delete item with ID:', id);
-    // You can perform your delete logic here
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedProperty, setSelectedProperty] = useState(null);
+  const [editFormData, setEditFormData] = useState({});
+
+  const handleView = (property) => {
+    setSelectedProperty(property);
+    setViewModalOpen(true);
   };
 
-  const handleEdit = (id) => {
-    console.log('Edit item with ID:', id);
-    // You can open a modal or perform your edit logic here
+  const handleEdit = (property) => {
+    setSelectedProperty(property);
+    setEditFormData(property);
+    setEditModalOpen(true);
   };
 
-  const handleView = (id) => {
-    console.log('View item with ID:', id);
-    // You can show more details of the item here
+  const handleDelete = (property) => {
+    setSelectedProperty(property);
+    setDeleteModalOpen(true);
   };
 
+  const handleCloseViewModal = () => setViewModalOpen(false);
+  const handleCloseEditModal = () => setEditModalOpen(false);
+  const handleCloseDeleteModal = () => setDeleteModalOpen(false);
+
+  const handleEditInputChange = (field) => (e) => {
+    setEditFormData({ ...editFormData, [field]: e.target.value });
+  };
+
+  const handleUpdate = () => {
+    setData(data.map(item => item.id === editFormData.id ? editFormData : item));
+    handleCloseEditModal();
+  };
+
+  const handleConfirmDelete = () => {
+    setData(data.filter(item => item.id !== selectedProperty));
+    handleCloseDeleteModal();
+  };
+  const handleStatusChange = (id, newStatus) => {
+    setData((prevData) =>
+      prevData.map((row) => (row.id === id ? { ...row, Status: newStatus } : row))
+    );
+  };
   return (
-    <Paper sx={{ width: '100%',overflow: 'hidden' }}>
-      <TableContainer className="table" sx={{ maxHeight: 440, fontSize: '12px', marginLeft: '20px', marginTop: '0px', marginRight: '20px' }}>
-        <Table stickyHeader aria-label="sticky table">
-          <TableHead>
-            <TableRow>
-              {columns.map((column) => (
-                <TableCell
-                  key={column.id}
-                  align={column.align}
-                  style={{ minWidth: column.minWidth, fontWeight: 'bolder', fontSize: '14px' }}
+    <div className="p-4">
+      <TableContainer component={Paper} style={{ maxHeight: "400px", marginTop: "20px", justifyContent:"center" }}>
+      <Table className="w-full border border-gray-300" >
+        <TableHead sx={{  background: "white", position: "sticky", fontWeight: "bold"}}>
+          <TableRow className="bg-gray-200" border= "1px solid black">
+            <TableCell sx={{ fontWeight:"bold" }} className="border p-2">S.No</TableCell>
+            <TableCell sx={{ fontWeight:"bold"}} className="border p-2">Property Title</TableCell>
+            <TableCell sx={{ fontWeight:"bold"}} className="border p-2">Property Type</TableCell>
+            <TableCell sx={{ fontWeight:"bold"}} className="border p-2">Address</TableCell>
+            <TableCell sx={{ fontWeight:"bold"}} className="border p-2"> Price</TableCell>
+            <TableCell sx={{ fontWeight:"bold"}} className="border p-2">Area(Sqft)</TableCell>
+            <TableCell sx={{ fontWeight:"bold"}} className="border p-2"> Furnishing</TableCell>
+            <TableCell sx={{ fontWeight:"bold"}} className="border p-2">Status</TableCell>
+            <TableCell sx={{ fontWeight:"bold"}} className="border p-2">Action</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {data.map((row) => (
+            <TableRow key={row.id} className="text-center" sx={{ fontWeight: "bold" }} >
+                     
+              <TableCell  sx={{ marginLeft:"4px", fontSize: "15px" }} className="border p-2">{row.id}</TableCell>
+              <TableCell   sx={{ marginLeft:"4px", fontSize: "15px" }} className="border p-2">{row.Name}</TableCell>
+              <TableCell    sx={{  marginLeft:"4px", fontSize: "15px" }} className="border p-2">{row.PropertyType}</TableCell>
+              <TableCell   sx={{  marginLeft:"4px", fontSize: "15px" }}  className="border p-2">{row.Address}</TableCell>
+              <TableCell     sx={{  marginLeft:"4px", fontSize: "15px" }} className="border p-2">{row.Price}</TableCell>
+              <TableCell  sx={{  marginLeft:"4px", fontSize: "15px"}}  className="border p-2">{row.AreaSqft}</TableCell>
+              <TableCell  sx={{  marginLeft:"4px", fontSize: "15px" }}  className="border p-2">{row.Furnishing}</TableCell>
+              <TableCell    sx={{  marginLeft:"4px", fontSize: "15px" }} className="border p-2">
+                <Select
+                  value={row.Status}
+                  onChange={(e) => handleStatusChange(row.id, e.target.value)}
+                  className="border p-1 rounded"
                 >
-                  {column.label}
-                </TableCell>
-              ))}
+                  <MenuItem value="Active">Active</MenuItem>
+                  <MenuItem value="InActive">InActive</MenuItem>
+                </Select>
+              </TableCell>
+              <TableCell  sx={{ fontWeight:"bolder" }} className="border p-2">
+                <div style={{ display: "flex", gap: "5px" }}>
+                  <IconButton color="blue"  fontweight="bolder" onClick={() => handleView(row)}>
+                    <Visibility />
+                  </IconButton>
+                  <IconButton color="black" fontweight="bolder"  onClick={() => handleEdit(row)}>
+                    <Edit />
+                  </IconButton>
+                  <IconButton color="black" fontweight="bolder"  onClick={() => handleDelete(row)}>
+                    <Delete />
+                  </IconButton>
+                </div>
+              </TableCell>
             </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) // Adjust row slice based on page and rowsPerPage
-              .map((row) => (
-                <TableRow hover role="checkbox" tabIndex={-1} key={row.SI_no}>
-                  {columns.map((column) => {
-                    const value = row[column.id];
-                    return (
-                      <TableCell key={column.id} align={column.align}>
-                        {column.id === 'action' ? (
-                          <div>
-                            <IconButton onClick={() => handleView(row.SI_no)} color="black">
-                              <VisibilityIcon />
-                            </IconButton>
-                            <IconButton onClick={() => handleEdit(row.SI_no)} color="black">
-                              <EditIcon />
-                            </IconButton>
-                            <IconButton onClick={() => handleDelete(row.SI_no)} color="black">
-                              <DeleteIcon />
-                            </IconButton>
-                          </div>
-                        ) : (
-                          column.format && typeof value === 'number' ? column.format(value) : value
-                        )}
-                      </TableCell>
-                    );
-                  })}
-                </TableRow>
-              ))}
-          </TableBody>
-        </Table>
+          ))}
+        </TableBody>
+      </Table>
       </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[10, 25, 50]} // Added more options for rows per page
-        component="div"
-        count={rows.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
-    </Paper>
+
+      {/* View Modal */}
+      <Modal open={viewModalOpen} onClose={handleCloseViewModal}>
+        <Box sx={modalStyle}>
+          <Box display="flex" justifyContent="space-between">
+            <Typography variant="h6">Property Details</Typography>
+            <IconButton onClick={handleCloseViewModal}><CloseIcon /></IconButton>
+          </Box>
+          {selectedProperty && (
+            <Grid container spacing={2} mt={2}>
+              {Object.entries(selectedProperty).map(([key, value]) => (
+                <Grid item xs={6} key={key}>
+                  <Typography><strong>{key}:</strong> {value}</Typography>
+                </Grid>
+              ))}
+            </Grid>
+          )}
+        </Box>
+      </Modal>
+
+      {/* Edit Modal */}
+      <Modal open={editModalOpen} onClose={handleCloseEditModal}>
+        <Box sx={modalStyle}>
+          <Box display="flex" justifyContent="space-between">
+            <Typography variant="h6">Edit Property</Typography>
+            <IconButton onClick={handleCloseEditModal}><CloseIcon /></IconButton>
+          </Box>
+          <Grid container spacing={2} mt={2}>
+            {Object.keys(editFormData).map((field) => (
+              <Grid item xs={6} key={field}>
+                <TextField
+                  label={field}
+                  value={editFormData[field] || ''}
+                  onChange={handleEditInputChange(field)}
+                  fullWidth
+                />
+              </Grid>
+            ))}
+          </Grid>
+          <Box display="flex" justifyContent="flex-end" mt={3}>
+            <Button variant="outlined" onClick={handleCloseEditModal}>Cancel</Button>
+            <Button variant="contained" onClick={handleUpdate} sx={{ ml: 2 }}>Update</Button>
+          </Box>
+        </Box>
+      </Modal>
+
+      {/* Delete Modal */}
+      <Modal open={deleteModalOpen} onClose={handleCloseDeleteModal}>
+        <Box sx={deleteModalStyle}>
+          <Typography variant="h6">Confirm Delete</Typography>
+          <Typography my={2}>Are you sure you want to delete this property?</Typography>
+          <Box display="flex" justifyContent="center" gap={2}>
+            <Button variant="outlined" onClick={handleCloseDeleteModal}>CANCLE</Button>
+            <Button variant="contained" color="error" onClick={handleConfirmDelete}>DELETE</Button>
+          </Box>
+        </Box>
+      </Modal>
+    </div>
   );
-}
+};
+
+export default PropertyTable;

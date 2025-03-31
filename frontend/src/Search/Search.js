@@ -21,7 +21,7 @@ const Search = () => {
             </InputAdornment>
           ),
         }}
-        style={{ marginBottom: '20px',width:'160px',display:'flex',marginRight:'200px',justifyContent:'flex-end',marginLeft:'600px' }}
+        style={{ marginBottom: '20px',width:'160px',display:'flex',marginRight:'200px',justifyContent:'flex-end',marginLeft:'900px' }}
       />
 
 

@@ -43,14 +43,14 @@ const Header=()=>
         <>
         <AppBar position="static" style={{backgroundColor:"#ffffff", height:"60px"}}>
         
-          <Box sx={{ flexGrow: 0, padding:"10px 30px",display:'flex', justifyContent:"flex-end" }}>
+          <Box sx={{ display:'flex', justifyContent:"flex-end" }}>
             <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Esneha" src="Esneha" />
+              <IconButton onClick={handleOpenUserMenu} sx={{  }}>
+                <Avatar alt="Sumona" src="Sumona" />
               </IconButton>
             </Tooltip>
             <Menu
-              sx={{ mt: '45px' }}
+              sx={{ marginTop: '45px' }}
               id="menu-appbar"
               anchorEl={anchorElUser}
               anchorOrigin={{

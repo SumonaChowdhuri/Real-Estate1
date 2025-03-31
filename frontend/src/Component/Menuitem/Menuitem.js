@@ -1,42 +1,42 @@
 const Menuitem = [
     
     {
-        icon: '/sidebar/dashboard.png',
+        icon: 'dashboard.png',
         label: "Dashboard",
         href: "/",
     },
     {
-      icon: '/sidebar/property.png',
+      icon: 'property.png',
       label: "Property",
       href: "/property",
     },
     {
-       icon: "/sidebar/businessman.png",
+       icon: "seller.png",
        label: "seller",
        href: "/list/subjects",
       },
     {
-      icon: "/sidebar/agender.png",
+      icon: "agent.png",
       label: " agent",
       href: "/agent",
     },
     {
-      icon: "/sidebar/for-rent.png",
+      icon: "lease.png",
       label: "lease",
       href: "/lease",
     },
     {
-      icon: "/sidebar/booking.png",
+      icon: "booking.png",
       label: "Booking",
       href: "/Booking",
     },
     {
-      icon: "/sidebar/salary.png",
+      icon: "finance.png",
       label: "Finance",
       href: "/finance",
     },
     {
-      icon:"/sidebar/buyer.png",
+      icon:"buyers.png",
       label:"Buyers",
       href:"/buyers",
 

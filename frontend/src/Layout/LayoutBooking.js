@@ -13,7 +13,7 @@ const LayoutBooking=()=>
             <Sidebar/>
             <div className="content">
             <Header className="header" />
-            <Dashboard className="dashboard" />
+            {/* <Dashboard className="dashboard" /> */}
             <Search className="dashboard" />
             <Booking className="dashboard" />
             
