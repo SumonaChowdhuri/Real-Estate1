@@ -1,13 +1,12 @@
-import { useState } from "react";
-import { Table, TableHead, TableBody, TableRow, TableCell, Select, MenuItem, IconButton ,Modal, Box, Typography, Grid, TextField, Button} from "@mui/material";
+import { useState,useEffect } from "react";
+import { InputAdornment,Table, TableHead, TableBody, TableRow, TableCell, Select, MenuItem, IconButton ,Modal, Box, Typography, Grid, TextField, Button ,TableContainer,Paper} from "@mui/material";
 import { Visibility, Edit, Delete, Close as CloseIcon  } from "@mui/icons-material";
-
+import SearchIcon from '@mui/icons-material/Search';
+import AddIcon from '@mui/icons-material/Add';
+import axios from "axios"
+import { toast } from "react-toastify";
 const BuyersTable = () => {
-  const [data, setData] = useState([
-    { id: 1, name: "Rahul Sharma", email: "rahul@gmail.com", phone: "23467889", address: "Adityapur", Room: "Normal",  status: "Active" },
-    { id: 2, name: "Neha Verma", email: "neha@gmail.com", phone: "9876543210", address: "Ranchi", Room: "Delux", status: "InActive"},
-    { id: 3, name: "Amit Kumar", email: "amit@gmail.com", phone: "8765432109", address: "Jamshedpur",Room : "luxury", status: "Active" },
-  ]);
+  const [data, setData] = useState([]);
   const modalStyle = {
     position: 'absolute',
     top: '50%',
@@ -32,22 +31,32 @@ const BuyersTable = () => {
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [selectedname, setSelectedname] = useState(null);
+  const [selectedBuyers, setSelectedBuyers] = useState(null);
   const [editFormData, setEditFormData] = useState({});
+  const [buyers,setBuyers]=useState([]);
+  
+  const getAllBuyers=async()=>{
+    const res=await axios.get(`http://localhost:3005/buyers/getAllBuyers`)
+    console.log(res.data)
+    setBuyers(res.data);
+  }
+  useEffect(()=>{
+    getAllBuyers()
+  },[]);
 
-  const handleView = (name) => {
-    setSelectedname(name);
+  const handleView = (Buyers) => {
+    setSelectedBuyers(Buyers);
     setViewModalOpen(true);
   };
 
-  const handleEdit = (name) => {
-    setSelectedname(name);
-    setEditFormData(name);
+  const handleEdit = (Buyers) => {
+    setSelectedBuyers(Buyers);
+    setEditFormData(Buyers);
     setEditModalOpen(true);
   };
 
-  const handleDelete = (name) => {
-    setSelectedname(name);
+  const handleDelete = (Buyers) => {
+    setSelectedBuyers(Buyers);
     setDeleteModalOpen(true);
   };
 
@@ -64,9 +73,19 @@ const BuyersTable = () => {
     handleCloseEditModal();
   };
 
-  const handleConfirmDelete = () => {
-    setData(data.filter(item => item.id !== selectedname));
+  const handleConfirmDelete = async () => {
     handleCloseDeleteModal();
+    try {
+      const res = await axios.delete(`http://localhost:3005/Buyers/deleteBuyers/${selectedBuyers._id}`);
+      if (res.data.success) {
+        toast.success(res.data.message);
+        getAllBuyers()
+      }
+    }
+    catch (error) {
+      console.log(error);
+      toast.error(error.res.data.message);
+    }
   };
   const handleStatusChange = (id, newStatus) => {
     setData((prevData) =>
@@ -77,63 +96,103 @@ const BuyersTable = () => {
  
  
   return (
-    <div className="p-4">
-      <Table className="w-full border border-gray-300">
+    <div classBuyers="p-4">
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center', // center horizontally
+          gap: 3, // gap between TextField and Button
+          marginTop: 4,
+          marginBottom:4,
+          marginLeft:100
+        }}
+      >
+        <TextField
+          label="Search"
+          variant="outlined"
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+          sx={{ maxWidth: '260px' }}
+        />
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          sx={{
+            height: '50px',
+            backgroundColor: 'rgb(4, 4,40)',
+            color: '#ffffff',
+            textTransform: 'capitalize',
+          }}
+        >
+         Add Buyers
+        </Button>
+      </Box>
+      <TableContainer component={Paper} style={{ maxHeight: "400px", marginTop: "20px",overflow:"auto"  }}>
+      <Table classBuyers="w-full border border-gray-300">
         <TableHead sx={{ position: "sticky", top: 0, background: "white", zIndex: 2 }}>
-          <TableRow className="bg-gray-200">
-          <TableCell sx={{ fontWeight:"bold"}} className="border p-2">id</TableCell>
-            <TableCell sx={{ fontWeight:"bold"}} className="border p-2">Name</TableCell>
-            <TableCell sx={{ fontWeight:"bold"}} className="border p-2">Email</TableCell>
-            <TableCell sx={{ fontWeight:"bold"}} className="border p-2"> Phone</TableCell>
-            <TableCell sx={{ fontWeight:"bold"}} className="border p-2">Address</TableCell>
-            <TableCell sx={{ fontWeight:"bold"}} className="border p-2">Room</TableCell>
-            <TableCell sx={{ fontWeight:"bold"}} className="border p-2">Status</TableCell>
-            <TableCell sx={{ fontWeight:"bold"}} className="border p-2">Action</TableCell>
+          <TableRow classBuyers="bg-gray-200">
+          <TableCell sx={{ fontWeight:"bold"}} classBuyers="border p-2">id</TableCell>
+            <TableCell sx={{ fontWeight:"bold"}} classBuyers="border p-2">Buyers</TableCell>
+            <TableCell sx={{ fontWeight:"bold"}} classBuyers="border p-2">Email</TableCell>
+            <TableCell sx={{ fontWeight:"bold"}} classBuyers="border p-2"> Phone</TableCell>
+            <TableCell sx={{ fontWeight:"bold"}} classBuyers="border p-2">Address</TableCell>
+            <TableCell sx={{ fontWeight:"bold"}} classBuyers="border p-2">Room</TableCell>
+            <TableCell sx={{ fontWeight:"bold"}} classBuyers="border p-2">Status</TableCell>
+            <TableCell sx={{ fontWeight:"bold"}} classBuyers="border p-2">Action</TableCell>
           </TableRow>
         </TableHead>     
         <TableBody>
-          {data.map((row) => (
-            <TableRow key={row.id} className="text-center">
-              <TableCell   sx={{ padding: "4px", fontSize: "12px" }} className="border p-2">{row.id}</TableCell>
-              <TableCell  sx={{ padding: "4px", fontSize: "12px" }} className="border p-2">{row.name}</TableCell>
-              <TableCell  sx={{ padding: "4px", fontSize: "12px" }} className="border p-2">{row.email}</TableCell>
-              <TableCell  sx={{ padding: "4px", fontSize: "12px" }} className="border p-2">{row.phone}</TableCell>
-              <TableCell  sx={{ padding: "4px", fontSize: "12px" }} className="border p-2">{row.address}</TableCell>
-              <TableCell sx={{ padding: "4px", fontSize: "12px" }}  className="border p-2">{row.Room}</TableCell>
-              <TableCell  sx={{ padding: "4px", fontSize: "12px" }} className="border p-2">
+          {buyers.length>0 && buyers.map((Buyers,index) => (
+            <TableRow key={Buyers.id} classBuyers="text-center">
+              <TableCell   sx={{ padding: "4px", fontSize: "15px" }} classBuyers="border p-2">{index+1}</TableCell>
+              <TableCell  sx={{ padding: "4px", fontSize: "15px" }} classBuyers="border p-2">{Buyers.Buyers}</TableCell>
+              <TableCell  sx={{ padding: "4px", fontSize: "15px" }} classBuyers="border p-2">{Buyers.Email}</TableCell>
+              <TableCell  sx={{ padding: "4px", fontSize: "15px" }} classBuyers="border p-2">{Buyers.Phone}</TableCell>
+              <TableCell  sx={{ padding: "4px", fontSize: "15px" }} classBuyers="border p-2">{Buyers.Address}</TableCell>
+              <TableCell sx={{ padding: "4px", fontSize: "15px" }}  classBuyers="border p-2">{Buyers.Room}</TableCell>
+              <TableCell  sx={{ padding: "4px", fontSize: "15px" }} classBuyers="border p-2">
                 <Select
-                  value={row.status}
-                  onChange={(e) => handleStatusChange(row.id, e.target.value)}
-                  className="border p-1 rounded"
+                  value={Buyers.status}
+                  onChange={(e) => handleStatusChange(Buyers.id, e.target.value)}
+                  classBuyers="border p-1 rounded"
                 >
                   <MenuItem value="Active">Active</MenuItem>
                   <MenuItem value="InActive">InActive</MenuItem>
             
                 </Select>
              </TableCell>
-              <TableCell  sx={{ padding: "4px", fontSize: "12px" }} className="border p-2">
-                <div style={{ display: "flex", gap: "5px", justifyContent: "center" }}>
-                  <IconButton color="black" onClick={() => handleView(row)}>
+              <TableCell  sx={{ padding: "4px", fontSize: "15px" }} classBuyers="border p-2">
+              <TableCell className="border p-2">
+                 <div    style={{ display: "flex", gap: "5px", justifyContent: "center"  }}>
+                  <IconButton sx={{color:"blue"}} onClick={() => handleView(Buyers)}>
                     <Visibility />
                   </IconButton>
-                  <IconButton color="black" onClick={() => handleEdit(row)}>
+                  <IconButton sx={{color:"green"}} onClick={() => handleEdit(Buyers)}>
                     <Edit />
                   </IconButton>
-                  <IconButton color="black" onClick={() => handleDelete(row)}>
+                  <IconButton sx={{color:"red"}} onClick={() => handleDelete(Buyers)}>
                     <Delete />
                   </IconButton>
+                 
                 </div>
+              </TableCell>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
-      
+      </TableContainer>
       {/* View Modal */}
       <Modal open={viewModalOpen} onClose={handleCloseViewModal}>
         <Box sx={modalStyle}>
           <Box display="flex" justifyContent="space-between">
-            <Typography variant="h6">Buyers Details</Typography>
+            <Typography variant="h6">Property Details</Typography>
             <IconButton onClick={handleCloseViewModal}><CloseIcon /></IconButton>
           </Box>
           {selectedBuyers && (
@@ -152,7 +211,7 @@ const BuyersTable = () => {
       <Modal open={editModalOpen} onClose={handleCloseEditModal}>
         <Box sx={modalStyle}>
           <Box display="flex" justifyContent="space-between">
-            <Typography variant="h6">Edit Buyers</Typography>
+            <Typography variant="h6">Edit Property</Typography>
             <IconButton onClick={handleCloseEditModal}><CloseIcon /></IconButton>
           </Box>
           <Grid container spacing={2} mt={2}>
@@ -178,7 +237,7 @@ const BuyersTable = () => {
       <Modal open={deleteModalOpen} onClose={handleCloseDeleteModal}>
         <Box sx={deleteModalStyle}>
           <Typography variant="h6">Confirm Delete</Typography>
-          <Typography my={2}>Are you sure you want to delete this Buyers?</Typography>
+          <Typography my={2}>Are you sure you want to delete this property?</Typography>
           <Box display="flex" justifyContent="center" gap={2}>
             <Button variant="outlined" onClick={handleCloseDeleteModal}>CANCLE</Button>
             <Button variant="contained" color="error" onClick={handleConfirmDelete}>DELETE</Button>

@@ -5,14 +5,14 @@ const { Schema, model } = mongoose;
 
 const bookingSchema = new Schema({
     id:{type:Number},
-    name:{type: String},
-    email: {type:String},
-    phone: {type:Number},
-    address:{type: String},
-    checkIN :{type:String},
-    checkOut:{type:String},
-    status:{type:String},
-    Bstatus:{type:String},
+    Name:{type: String},
+    Email: {type:String},
+    Phone: {type:Number},
+    Address:{type: String},
+    CheckIN :{type:String},
+    CheckOut:{type:String},
+    Status:{type:String},
+    Bussinessstatus:{type:String},
   
 }, { timestamps: true }); // Correct placement of timestamps
 

@@ -5,12 +5,13 @@ const { Schema, model } = mongoose;
 
 const financeSchema = new Schema({
     id:{type:Number},
-    name: {type:String},
-    email: {type:String},
-    phone: {type:Number},
-    address: {type:String},
-    Room :{type:String},
-    status:{type:String},
+    name:{type:String},
+    amount:{type:Number},
+    transactionType:{type:String},
+    catogery:{type:String},
+    PaymentMode:{type:String},
+    TransactionDate:{type:String},
+    status: {type:String}
   
 
   

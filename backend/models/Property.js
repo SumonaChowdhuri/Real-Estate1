@@ -4,15 +4,14 @@ import mongoose from 'mongoose';
 const { Schema, model } = mongoose;
 
 const propertySchema = new Schema({
-    id:{type:Number},
+    id:{type:String},
     Name: {type:String},
-    propertType: {type:String},
-    Price: {type:Number},
+    PropertyType: {type:String},
+    Price: {type:String},
     Address: {type:String},
-    AreaSqft: {type:Number},
+    AreaSqft: {type:String},
     Furnishing: {type:String},
-    Room :{type:String},
-    Status:{type:String},
+    status:{type:String},
 }, { timestamps: true }); // Correct placement of timestamps
 
 const Property= model('Property',propertySchema);

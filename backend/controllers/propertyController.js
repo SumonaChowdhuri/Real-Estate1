@@ -3,13 +3,14 @@ import Property from "../models/Property.js";
 export const createProperty = async (req, res) => {//controller hai
     try {// use for  catch error
 
-        const { propertyTitle, propertyType, address,  price, areasqrt, furnishing, status } = req.body;
-        if(!propertyTitle || !propertyType || !address|| !price|| !areasqrt|| !furnishing ||!status) {
+        const {Name, PropertyType,Address,Price,AreaSqft, Furnishing,status } = req.body;
+        if(!Name || !PropertyType || !Address|| !Price|| !AreaSqft|| !Furnishing ||!status) {
             return res.status(400).json({ success: false, message: 'All fields are required!' });
         }
 
-        await Property.create({propertyTitle, propertyType, address,  price, areasqrt, furnishing, status })
+        await Property.create({Name, PropertyType, Address,  Price, AreaSqft, Furnishing, status })
         res.status(201).json({
+            success:true,
             message: 'Property created successfully'
         });
     } catch (error) {
@@ -42,7 +43,7 @@ export const getPropertyById = async (req, res) => {
 
 export const updateProperty = async (req, res) => {
     try {
-        const { propertyTitle, propertyType, address,  price, areasqrt, furnishing, status } = req.body;
+        const { Name, PropertyType, Address,  Price, AreaSqft, Furnishing, status } = req.body;
         const propertyId = req.params.id; 
 
         const existingProperty = await Property.findById(propertyId);
@@ -51,7 +52,7 @@ export const updateProperty = async (req, res) => {
         }
 
         const updateData = {
-            propertyTitle, propertyType, address,  price, areasqrt, furnishing, status 
+            Name, PropertyType, Address,  Price, AreaSqft, Furnishing, status 
         };
 
         const updatedProperty = await Property.findByIdAndUpdate(
@@ -76,7 +77,9 @@ export const deleteProperty = async (req, res) => {
         if (!deletedProperty) {
             return res.status(404).json({ message: 'Property not found' });
         }
-        res.json({ message: 'Property deleted successfully' });
+        res.json({
+            success:true,
+            message: 'Property deleted successfully'});
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

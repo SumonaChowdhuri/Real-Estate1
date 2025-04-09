@@ -3,13 +3,14 @@ import Finance from "../models/Finance.js";
 export const createFinance = async (req, res) => {//controller hai
     try {// use for  catch error
 
-        const { Name,amount, transactionType, catogery, PaymentMode, status } = req.body;
-        if(!Name || !amount || !transactionType|| !catogery || !PaymentMode || !status) {
+        const { name,amount, transactionType, catogery, PaymentMode,TransactionDate, status } = req.body;
+        if(!name || !amount || !transactionType|| !catogery || !PaymentMode ||!TransactionDate|| !status) {
             return res.status(400).json({ success: false, message: 'All fields are required!' });
         }
 
-        await Finance.create({Name,amount, transactionType, catogery, PaymentMode, status })
+        await Finance.create({name,amount, transactionType, catogery, PaymentMode,TransactionDate, status })
         res.status(201).json({
+            success:true,
             message: 'Finance created successfully'
         });
     } catch (error) {
@@ -42,7 +43,7 @@ export const getFinanceById = async (req, res) => {
 
 export const updateFinance = async (req, res) => {
     try {
-        const { Name,amount, transactionType, catogery, PaymentMode, status  } = req.body;
+        const { name,amount, transactionType, catogery, PaymentMode,TransactionDate, status  } = req.body;
         const financeId = req.params.id; 
 
         const existingFinance = await Finance.findById(financeId);
@@ -51,7 +52,7 @@ export const updateFinance = async (req, res) => {
         }
 
         const updateData = {
-            Name,amount, transactionType, catogery, PaymentMode, status 
+            name,amount, transactionType, catogery, PaymentMode,TransactionDate, status 
         };
 
         const updatedFinance = await Finance.findByIdAndUpdate(
@@ -76,7 +77,9 @@ export const deleteFinance = async (req, res) => {
         if (!deletedFinance) {
             return res.status(404).json({ message: 'Finance not found' });
         }
-        res.json({ message: 'Finance deleted successfully' });
+        res.json({
+            success:true,
+            message: 'Finance deleted successfully' });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

@@ -1,13 +1,14 @@
-import { useState } from "react";
-import { Table, TableHead, TableBody, TableRow, TableCell, Select, MenuItem, IconButton ,Modal, Box, Typography, Grid, TextField, Button} from "@mui/material";
+import { useState ,useEffect} from "react";
+import {InputLabel,FormControl, InputAdornment,Table, TableHead, TableBody, TableRow, TableCell, Select, MenuItem, IconButton ,Modal, Box, Typography, Grid, TextField, Button,TableContainer,Paper} from "@mui/material";
 import { Visibility, Edit, Delete,Close as CloseIcon } from "@mui/icons-material";
-
+import SearchIcon from '@mui/icons-material/Search';
+import AddIcon from '@mui/icons-material/Add';
+import axios from "axios";
+import { toast } from "react-toastify";
+import {useNavigate} from "react-router-dom";
 const AgentTable = () => {
-  const [data, setData] = useState([
-    { id: 1, Name: "Rahul Sharma", Email: "rahul@gmail.com", Phone: "23467889", Address: "Adityapur", License: "2243567", Experience: "10 y", Rate: "5000", Status: "Active" },
-    { id: 2, Name: "Neha Verma", Email: "neha@gmail.com", Phone: "9876543210", Address: "Ranchi", License: "567889", Experience: "9 y", Rate: "3000", Status: "InActive" },
-    { id: 3, Name: "Amit Kumar", Email: "amit@gmail.com", Phone: "8765432109", Address: "Jamshedpur", License: "756653", Experience: "15 y", Rate: "6500", Status: "Active" },
-  ]);
+  const [data, setData] = useState([]);
+
   const modalStyle = {
     position: 'absolute',
     top: '50%',
@@ -28,13 +29,40 @@ const AgentTable = () => {
     width: 400,
     textAlign: 'center'
   };
-
+  const [addModalOpen,setAddModalOpen]=useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState(null);
   const [editFormData, setEditFormData] = useState({});
-
+  
+  const [Agents,setAgents]=useState([]);
+  const [searchTerm,setSearchTerm]=useState("");
+  const[apiAgents,setApiAgents]=useState([]);
+  
+  const [addFormData,setAddFormData]=useState({
+    Name:"",
+    Email:"",
+    Address:"",
+    License:"",
+    Experience:"",
+    Rate:"",
+    Status:"Available",
+  });
+  const getAllAgents=async()=>{
+    try{
+      const res=await axios.get(`http://localhost:3005/Agent/getAllAgent`)
+      console.log(res.data);
+      setAgents(res.data);
+      setApiAgents(res.data);
+    }
+    catch(error){
+      console.log("Error");
+    }
+  }
+  useEffect(()=>{
+    getAllAgents()
+  },[]);
   const handleView = (Agent) => {
     setSelectedAgent(Agent);
     setViewModalOpen(true);
@@ -50,6 +78,11 @@ const AgentTable = () => {
     setSelectedAgent(Agent);
     setDeleteModalOpen(true);
   };
+  const handleOpenAddModal = () => setAddModalOpen(true);
+  const handleCloseAddModal = () => {
+    console.log("hello");
+    setAddModalOpen(false);
+  }
 
   const handleCloseViewModal = () => setViewModalOpen(false);
   const handleCloseEditModal = () => setEditModalOpen(false);
@@ -59,15 +92,78 @@ const AgentTable = () => {
     setEditFormData({ ...editFormData, [field]: e.target.value });
   };
 
-  const handleUpdate = () => {
-    setData(data.map(item => item.id === editFormData.id ? editFormData : item));
-    handleCloseEditModal();
+  const handleAddInputChange = (field) => (e) => {
+    setAddFormData({
+      ...addFormData,[field]:e.target.value,
+    });
   };
+  
+  const handleAddAgent=async()=>{
+    try{
+      const res=await axios.post(`http://localhost:3005/Agent/createAgent`,addFormData);
+      if(res.data.success){
+        toast.success("Agent added successfully!");
+        handleCloseAddModal();
+        getAllAgents();
+        //reset form data
+        setAddFormData({
+          Name:"",
+          Email:"",
+          Address:"",
+          License:"",
+          Experience:"",
+          Rate:"",
+          Status:"Available"
+        });
+      }
+    }catch(error){
+      console.error("error adding Agent",error);
+      toast.error(error.res?.data?.message||"failed to add property");
+    }
+    }
+  const handleSearchChange = (e) => {
+    console.log("target", e.target);
+    const value = e.target.value.toLowerCase();
+    setSearchTerm(value);
 
-  const handleConfirmDelete = () => {
-    setData(data.filter(item => item.id !== selectedAgent));
-    handleCloseDeleteModal();
+    if (value === "") {
+        setAgents(apiAgents); // Reset to full list when search is empty
+        return;
+    }
+
+    const filtered = apiAgents.filter((Agent) => {
+      return (
+        Agent.Name.toLowerCase().includes(value) ||   // Name = gfdgf.includes(gfdgf)
+        Agent.Address.toLowerCase().includes(value) ||
+        Agent.License.toLowerCase().includes(value) ||
+        Agent.Rate.toString().toLowerCase().includes(value)
+      );
+    });
+
+    setAgents(filtered);
+};
+
+  const handleUpdate = () => {
+    console.log("Updating Agent:", editFormData);
+    // Here you would typically make an API call to update the Agent
+    handleCloseEditModal();
   }
+
+  const handleConfirmDelete = async () => {
+    handleCloseDeleteModal();
+    try {
+      const res = await axios.delete(`http://localhost:3005/Agent/deleteAgent/${selectedAgent._id}`);
+      if (res.data.success) {
+        toast.success(res.data.message);
+        getAllAgents()
+      }
+    }
+    catch (error) {
+      console.log(error);
+      toast.error(error.res.data.message);
+    }
+  };
+  
   const handleStatusChange = (id, newStatus) => {
     setData((prevData) =>
       prevData.map((row) => (row.id === id ? { ...row, Status: newStatus } : row))
@@ -75,36 +171,74 @@ const AgentTable = () => {
   };
   return (
     <div className="p-4">
-      <Table className="w-full border border-gray-300" >
-        <TableHead sx={{  top: 0, background: "white", zIndex: 2 , position: "sticky",fontWeight:"bolder"}}>
+    <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center', // center horizontally
+          gap: 3, // gap between TextField and Button
+          marginTop: 4,
+          marginBottom:4,
+          marginLeft:100
+        }}
+      >
+        <TextField
+          label="Search"
+          variant="outlined"
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+          sx={{ maxWidth: '260px' }}
+        />
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={handleOpenAddModal}
+          sx={{
+            height: '50px',
+            backgroundColor: 'rgb(4, 4,40)',
+            color: '#ffffff',
+            textTransform: 'capitalize',
+          }}
+        >
+        Add Agent
+        </Button>
+      </Box>
+      <TableContainer component={Paper} style={{ maxHeight: "400px", marginTop: "20px",overflow:"auto"}}>
+      <Table className="w-full border border-gray-300"  sx={{ whiteSpace:"nowrap"}}>
+        <TableHead sx={{ position: "sticky", top: 0, background: "white", zIndex: 2 }}>
           <TableRow className="bg-gray-200">
-            <TableCell  sx={{  fontSize: "12px" ,whiteSpace:"nowrap" }} className="border p-2">S.No</TableCell>
-            <TableCell  sx={{  fontSize: "12px" ,whiteSpace:"nowrap"  }} className="border p-2">Name</TableCell>
-            <TableCell  sx={{  fontSize: "12px" }} className="border p-2">Email</TableCell>
-            <TableCell  sx={{  fontSize: "12px" }} className="border p-2">Phone No.</TableCell>
-            <TableCell  sx={{  fontSize: "12px" }} className="border p-2">Address</TableCell>
-            <TableCell   sx={{  fontSize: "12px" }}className="border p-2">License no.</TableCell>
-            <TableCell sx={{  fontSize: "12px" }}  className="border p-2">Experience</TableCell>
-            <TableCell  sx={{  fontSize: "12px" }} className="border p-2">Commition Rate</TableCell>
-            <TableCell   sx={{ fontSize: "12px" }}className="border p-2">Status</TableCell>
-            <TableCell  sx={{  fontSize: "12px" }} className="border p-2">Action</TableCell>
+            <TableCell  sx={{  fontWeight:"bold" ,whiteSpace:"nowrap" }} className="border p-2">S.No</TableCell>
+            <TableCell  sx={{  fontWeight:"bold" ,whiteSpace:"nowrap"  }} className="border p-2">Name</TableCell>
+            <TableCell  sx={{  fontWeight:"bold"}} className="border p-2">Email</TableCell>
+            <TableCell  sx={{  fontWeight:"bold" }} className="border p-2">Phone No.</TableCell>
+            <TableCell  sx={{  fontWeight:"bold" }} className="border p-2">Address</TableCell>
+            <TableCell   sx={{  fontWeight:"bold" }}className="border p-2">License no.</TableCell>
+            <TableCell sx={{  fontWeight:"bold" }}  className="border p-2">Experience</TableCell>
+            <TableCell  sx={{  fontWeight:"bold" }} className="border p-2">Rate</TableCell>
+            <TableCell   sx={{ fontWeight:"bold"}}className="border p-2">Status</TableCell>
+            <TableCell  sx={{  fontWeight:"bold" }} className="border p-2">Action</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {data.map((row) => (
-            <TableRow key={row.id} className="text-center" >
-              <TableCell className="border p-2">{row.id}</TableCell>
-              <TableCell className="border p-2">{row.Name}</TableCell>
-              <TableCell className="border p-2">{row.Email}</TableCell>
-              <TableCell className="border p-2">{row.Phone}</TableCell>
-              <TableCell className="border p-2">{row.Address}</TableCell>
-              <TableCell className="border p-2">{row.License}</TableCell>
-              <TableCell className="border p-2">{row.Experience}</TableCell>
-              <TableCell className="border p-2">{row.Rate}</TableCell>
+          {Agents.length>0 && Agents.map((Agent,index) => (
+            <TableRow key={Agent.id} className="text-center" >
+              <TableCell className="border p-2">{index+1}</TableCell>
+              <TableCell className="border p-2">{Agent.Name}</TableCell>
+              <TableCell className="border p-2">{Agent.Email}</TableCell>
+              <TableCell className="border p-2">{Agent.Phone}</TableCell>
+              <TableCell className="border p-2">{Agent.Address}</TableCell>
+              <TableCell className="border p-2">{Agent.License}</TableCell>
+              <TableCell className="border p-2">{Agent.Experience}</TableCell>
+              <TableCell className="border p-2">{Agent.Rate}</TableCell>
               <TableCell className="border p-2">
                 <Select
-                  value={row.Status}
-                  onChange={(e) => handleStatusChange(row.id, e.target.value)}
+                  value={Agent.Status}
+                  onChange={(e) => handleStatusChange(Agent.id, e.target.value)}
                   className="border p-1 rounded"
                 >
                   <MenuItem value="Active">Active</MenuItem>
@@ -112,14 +246,14 @@ const AgentTable = () => {
                 </Select>
               </TableCell>
               <TableCell className="border p-2">
-                 <div    style={{ display: "flex", gap: "5px", justifyContent: "center" , marginRight:"900px"  }}>
-                  <IconButton color="black" onClick={() => handleView(row)}>
+                 <div    style={{ display: "flex", gap: "5px", justifyContent: "center"  }}>
+                  <IconButton sx={{color:"blue"}} onClick={() => handleView(Agent)}>
                     <Visibility />
                   </IconButton>
-                  <IconButton color="black" onClick={() => handleEdit(row)}>
+                  <IconButton sx={{color:"green"}} onClick={() => handleEdit(Agent)}>
                     <Edit />
                   </IconButton>
-                  <IconButton color="black" onClick={() => handleDelete(row)}>
+                  <IconButton sx={{color:"red"}} onClick={() => handleDelete(Agent)}>
                     <Delete />
                   </IconButton>
                  
@@ -129,6 +263,7 @@ const AgentTable = () => {
           ))}
         </TableBody>
       </Table>
+      </TableContainer>
       {/* View Modal */}
       <Modal open={viewModalOpen} onClose={handleCloseViewModal}>
         <Box sx={modalStyle}>
@@ -150,23 +285,39 @@ const AgentTable = () => {
 
       {/* Edit Modal */}
       <Modal open={editModalOpen} onClose={handleCloseEditModal}>
-        <Box sx={modalStyle}>
-          <Box display="flex" justifyContent="space-between">
-            <Typography variant="h6">Edit Agent</Typography>
-            <IconButton onClick={handleCloseEditModal}><CloseIcon /></IconButton>
-          </Box>
-          <Grid container spacing={2} mt={2}>
-            {Object.keys(editFormData).map((field) => (
-              <Grid item xs={6} key={field}>
-                <TextField
-                  label={field}
-                  value={editFormData[field] || ''}
-                  onChange={handleEditInputChange(field)}
-                  fullWidth
-                />
-              </Grid>
-            ))}
-          </Grid>
+  <Box sx={modalStyle}>
+    <Box display="flex" justifyContent="space-between">
+      <Typography variant="h6">Edit Property</Typography>
+      <IconButton onClick={handleCloseEditModal}>
+        <CloseIcon />
+      </IconButton>
+    </Box>
+    <Grid container spacing={2} mt={2}>
+      {Object.keys(editFormData).map((field) => (
+        <Grid item xs={6} key={field}>
+          {field === "Status" ? (
+            <FormControl fullWidth>
+              <InputLabel>Status</InputLabel>
+              <Select
+                label="Status"
+                value={editFormData.Status || ''}
+                onChange={handleEditInputChange("Status")}
+              >
+                <MenuItem value="Active">Active</MenuItem>
+                <MenuItem value="InActive">InActive</MenuItem>
+              </Select>
+            </FormControl>
+          ) : (
+            <TextField
+              label={field}
+              value={editFormData[field] || ''}
+              onChange={handleEditInputChange(field)}
+              fullWidth
+            />
+          )}
+        </Grid>
+      ))}
+    </Grid>
           <Box display="flex" justifyContent="flex-end" mt={3}>
             <Button variant="outlined" onClick={handleCloseEditModal}>Cancel</Button>
             <Button variant="contained" onClick={handleUpdate} sx={{ ml: 2 }}>Update</Button>
@@ -184,6 +335,118 @@ const AgentTable = () => {
             <Button variant="contained" color="error" onClick={handleConfirmDelete}>DELETE</Button>
           </Box>
         </Box>
+      </Modal>
+
+       {/* Add property Modal  */}
+       <Modal open={addModalOpen} onClose={handleCloseAddModal}>
+        <Box sx={modalStyle}>
+          <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+            <Typography variant="h6" fontWeight="bold">Add New Property</Typography>
+            <IconButton onClick={handleCloseAddModal}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+          <Grid container spacing={3}>
+          <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Name"
+                name="Name"
+                value={addFormData.Name}
+                onChange={handleAddInputChange('Name')}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Email"
+                name="Email"
+                value={addFormData.Email}
+                onChange={handleAddInputChange('Email')}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Address"
+                name="Address"
+                value={addFormData.Address}
+                onChange={handleAddInputChange('Address')}
+                required
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="License"
+                name="License"
+                type="number"
+                value={addFormData.License}
+                onChange={handleAddInputChange('License')}
+                required
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Experience"
+                name="Experience"
+                type="number"
+                value={addFormData.Experience}
+                onChange={handleAddInputChange('Experience')}
+                required
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Rate"
+                name="Rate"
+                type="number"
+                value={addFormData.Rate}
+                onChange={handleAddInputChange('Rate')}
+                required
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <InputLabel id="Status">Status</InputLabel>
+                <Select
+                  labelId="Status"
+                  name="status"
+                  value={addFormData.Status}
+                  onChange={handleAddInputChange('Status')}
+                  required
+                >
+                  <MenuItem value="Available">Available</MenuItem>
+                  <MenuItem value="Sold">Sold</MenuItem>
+                  <MenuItem value="Rented">Rented</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            
+            <Grid item xs={12}>
+              <Box display="flex" justifyContent="flex-end" gap={2}>
+                <Button 
+                  variant="outlined" 
+                  onClick={handleCloseAddModal}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  variant="contained" 
+                  color="primary"
+                  onClick={handleAddAgent}
+                >
+                  Save Agent
+                </Button>
+              </Box>
+            </Grid>
+          </Grid>
+        </Box>
+        
       </Modal>
     </div>
   );

@@ -4,16 +4,16 @@ import mongoose from 'mongoose';
 const { Schema, model } = mongoose;
 
 const leaseSchema = new Schema({
-    name: {type:String},
-    email:{type: String},
-    phone:{type: Number},
-    address:{type: String},
+    Name: {type:String},
+    Email:{type: String},
+    Phone:{type: Number},
+    Address:{type: String},
     StartDate :{type:String},
-   Enddate:{type:String},
-    Monthlyrent:{type:Number},
-    Deposite:{type:String},
+    Enddate:{type:String},
+    MonthlyRent:{type:Number},
+    Deposit:{type:String},
     status:{type:String},
-    Lstatus:{type:String},
+    LeaseStatus:{type:String},
   
 }, { timestamps: true }); // Correct placement of timestamps
 

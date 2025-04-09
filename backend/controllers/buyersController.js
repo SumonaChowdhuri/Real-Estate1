@@ -1,15 +1,16 @@
-import Buyers from "../models/Buyers.js";
+import Buyer from "../models/Buyers.js";
 
 export const createBuyers = async (req, res) => {//controller hai
     try {// use for  catch error
 
-        const { Name, email, phone, address, Room, status } = req.body;
-        if(!Name || !email || !phone|| !address  || !Room|| !status) {
+        const { Buyers, Email, Phone, Address, Room, Status } = req.body;
+        if(!Buyers || !Email || !Phone|| !Address  || !Room|| !Status) {
             return res.status(400).json({ success: false, message: 'All fields are required!' });
         }
 
-        await Buyers.create({Name, email, phone, address, Room, status})
+        await Buyer.create({Buyers, Email, Phone, Address, Room, Status})
         res.status(201).json({
+            success:true,
             message: 'Buyers created successfully'
         });
     } catch (error) {
@@ -19,7 +20,7 @@ export const createBuyers = async (req, res) => {//controller hai
 
 export const getAllBuyers = async (req, res) => {
     try {
-        const buyerss = await Buyers.find();
+        const buyerss = await Buyer.find();
         res.json(buyerss);
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -30,7 +31,7 @@ export const getAllBuyers = async (req, res) => {
 export const getBuyersById = async (req, res) => {
     try {
         const buyersId = req.params.id;
-        const buyers = await Buyers.findById(buyersId);
+        const buyers = await Buyer.findById(buyersId);
         if (!buyers) {
             return res.status(404).json({ message: 'Buyers id not found' });
         }
@@ -42,7 +43,7 @@ export const getBuyersById = async (req, res) => {
 
 export const updateBuyers = async (req, res) => {
     try {
-        const {  Name, email, phone, address, Room, status  } = req.body;
+        const {  Buyers, Email, Phone, Address, Room, Status  } = req.body;
         const buyersId = req.params.id; 
 
         const existingBuyers = await Buyers.findById(buyersId);
@@ -51,7 +52,7 @@ export const updateBuyers = async (req, res) => {
         }
 
         const updateData = {
-            Name, email, phone, address, Room, status 
+            Buyers, Email, Phone, Address, Room, Status 
         };
 
         const updatedBuyers = await Buyers.findByIdAndUpdate(
@@ -72,11 +73,13 @@ export const updateBuyers = async (req, res) => {
 export const deleteBuyers = async (req, res) => {
     try {
         const buyersId = req.params.id; 
-        const deletedBuyers = await Buyers.findByIdAndDelete(buyersId); 
+        const deletedBuyers = await Buyer.findByIdAndDelete(buyersId); 
         if (!deletedBuyers) {
             return res.status(404).json({ message: 'Buyers not found' });
         }
-        res.json({ message: 'Buyers deleted successfully' });
+        res.json({
+            success:true, 
+            message: 'Buyers deleted successfully' });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

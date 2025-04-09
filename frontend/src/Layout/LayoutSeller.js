@@ -2,9 +2,9 @@ import React from "react";
 import Header from "../Component/Header/Header";
 import Sidebar from "../Component/Sidebar/Sidebar";
 import Dashboard from "../Pages/Dashboard/Dashboard";
-import Agent from "../Pages/Agent/Agent";
+import  Seller from "../Pages/Seller/Seller";
 // import Search from "../Search/Search"; 
-const LayoutAgent=()=>
+const LayoutSeller=()=>
 {
     return (
         <>
@@ -15,7 +15,7 @@ const LayoutAgent=()=>
             <Header className="header" />
             {/* <Dashboard className="dashboard" /> */}
             {/* <Search className="search"/> */}
-            <Agent className="agent" />
+            <Seller className="seller" />
         </div>
         </div>
         </div>
@@ -25,4 +25,4 @@ const LayoutAgent=()=>
     )
 }
 
-export default LayoutAgent;
+export default LayoutSeller;

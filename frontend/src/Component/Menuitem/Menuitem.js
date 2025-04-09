@@ -12,17 +12,17 @@ const Menuitem = [
     },
     {
        icon: "seller.png",
-       label: "seller",
-       href: "/list/subjects",
+       label: "Seller",
+       href: "/seller",
       },
     {
       icon: "agent.png",
-      label: " agent",
+      label: " Agent",
       href: "/agent",
     },
     {
       icon: "lease.png",
-      label: "lease",
+      label: "Lease",
       href: "/lease",
     },
     {

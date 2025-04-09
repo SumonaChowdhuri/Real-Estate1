@@ -3,13 +3,14 @@ import Booking from "../models/Booking.js";
 export const createBooking = async (req, res) => {//controller hai
     try {// use for  catch error
 
-        const {Name, email, phone, address, checkIN, checkOut, status, Bstatus} = req.body;
-        if(!Name || !email || !phone|| !address || !checkIN|| !checkOut || !status|| !Bstatus) {
+        const {Name,Email,Phone,Address,CheckIN ,CheckOut,Status,BussinessStatus} = req.body;
+        if(!Name || !Email || !Phone|| !Address || !CheckIN|| !CheckOut || !Status|| !BussinessStatus) {
             return res.status(400).json({ success: false, message: 'All fields are required!' });
         }
 
-        await Booking.create({Name, email, phone, address, checkIN, checkOut, status, Bstatus})
+        await Booking.create({Name, Email, Phone, Address, CheckIN, CheckOut, Status, BussinessStatus})
         res.status(201).json({
+            success:true,
             message: 'Booking created successfully'
         });
     } catch (error) {
@@ -42,7 +43,7 @@ export const getBookingById = async (req, res) => {
 
 export const updateBooking = async (req, res) => {
     try {
-        const { Name, email, phone, address, checkIN, checkOut, status, Bstatus } = req.body;
+        const { Name, Email, Phone, Address, CheckIN, CheckOut, Status, BussinessStatus } = req.body;
         const bookingId = req.params.id; 
 
         const existingBooking = await Booking.findById(bookingId);
@@ -51,7 +52,7 @@ export const updateBooking = async (req, res) => {
         }
 
         const updateData = {
-            Name, email, phone, address, checkIN, checkOut, status, Bstatus
+            Name, Email, Phone, Address, CheckIN, CheckOut, Status, BussinessStatus
         };
 
         const updatedBooking = await Booking.findByIdAndUpdate(
@@ -76,7 +77,9 @@ export const deleteBooking = async (req, res) => {
         if (!deletedBooking) {
             return res.status(404).json({ message: 'Booking not found' });
         }
-        res.json({ message: 'Booking deleted successfully' });
+        res.json({
+            success:true, 
+            message: 'Booking deleted successfully' });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

@@ -140,24 +140,4 @@ body{
   
     justify-content: flex-end;
 
-
-  }
-   .search{
-    width:fit-content;
-  margin-bottom: 45px;
-    justify-items:end;
-    margin-left: 350px;
-    margin-right: 200px;
-
   } 
-  .flex button{
-    
-    background-color: rgb(12, 12, 101) !important;
-    color: #ffffff !important;
-    justify-content: right !important;
-    align-items: center;
-    font-style:inherit;
-    text-transform: capitalize;
-     display:flex; 
-     position:absolute;
-     }

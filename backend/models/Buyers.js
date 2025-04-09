@@ -5,14 +5,12 @@ const { Schema, model } = mongoose;
 
 const buyersSchema = new Schema({
     id:{type:Number},
-    name: {type:String},
-    email: {type:String},
-    phone: {type:Number},
-    address: {type:String},
-    Room :{type:String},
-    status:{type:String},
-  
-
+    Buyers:{type:String},
+    Email:{type:String}, 
+    Phone:{type:Number}, 
+    Address:{type:String}, 
+    Room:{type:Number}, 
+    Status:{type:String}
   
 }, { timestamps: true }); // Correct placement of timestamps
 

@@ -3,13 +3,14 @@ import Agent from "../models/Agent.js";
 export const createAgent = async (req, res) => {//controller hai
     try {// use for  catch error
 
-        const { Name, email, phone, address, license, Experiance, Rate, status } = req.body;
-        if(!Name || !email || !phone|| !address || !license|| !Experiance || !Rate|| !status) {
+        const {Name, Email,Phone,Address, License,Experience,Rate,Status} = req.body;
+        if(!Name || !Email || !Phone|| !Address || !License|| !Experience || !Rate|| !Status) {
             return res.status(400).json({ success: false, message: 'All fields are required!' });
         }
 
-        await Agent.create({Name, email, phone, address, license, Experiance, Rate, status})
+        await Agent.create({Name, Email, Phone, Address, License, Experience, Rate, Status})
         res.status(201).json({
+            success:true,
             message: 'Agent created successfully'
         });
     } catch (error) {
@@ -42,7 +43,7 @@ export const getAgentById = async (req, res) => {
 
 export const updateAgent = async (req, res) => {
     try {
-        const { Name, email, phone, address, license, Experiance, Rate, status } = req.body;
+        const { Name, Email, Phone, Address, License, Experience, Rate, Status } = req.body;
         const agentId = req.params.id; 
 
         const existingAgent = await Agent.findById(agentId);
@@ -51,7 +52,7 @@ export const updateAgent = async (req, res) => {
         }
 
         const updateData = {
-            Name, email, phone, address, license, Experiance, Rate, status
+            Name, Email, Phone, Address, License, Experience, Rate, Status
         };
 
         const updatedAgent = await Agent.findByIdAndUpdate(
@@ -76,8 +77,10 @@ export const deleteAgent = async (req, res) => {
         if (!deletedAgent) {
             return res.status(404).json({ message: 'Agent not found' });
         }
-        res.json({ message: 'Agent deleted successfully' });
-    } catch (error) {
+        res.json({
+             success:true,
+             message: 'Agent deleted successfully' });
+        } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
