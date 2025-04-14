@@ -29,8 +29,6 @@ const PropertyTable = () => {
     width: 400,
     textAlign: 'center'
   };
-  const [page,setPage]=useState(0);
-  const [rowsPerPage,setRowsPerPage]=useState(5);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [addModalOpen,setAddModalOpen]=useState(false);
@@ -51,7 +49,29 @@ const PropertyTable = () => {
   const [apiProperties, setApiProperties] = useState([]);
   
   // const navigate = useNavigate();
-
+  const handleAddProperty=async()=>{
+    try{
+      const res=await axios.post(`http://localhost:3005/Property/createProperty`,addFormData);
+      if(res.data.success){
+        toast.success("property added successfully!");
+        handleCloseAddModal();
+        getAllProperties();
+        //reset form data
+        setAddFormData({
+          Name:"",
+          PropertyType:"",
+          Address:"",
+          Price:"",
+          AreaSqft:"",
+          Furnishing:"",
+          status:"Available"
+        });
+      }
+    }catch(error){
+      console.error("error adding property",error);
+      toast.error(error.res?.data?.message||"failed to add property");
+    }
+    }
   const getAllProperties = async () => {
     try {
       const res = await axios.get(`http://localhost:3005/Property/getAllProperty`);
@@ -66,7 +86,37 @@ const PropertyTable = () => {
   useEffect(() => {
     getAllProperties()
   }, [])
+  const handleUpdate = async () => {
+    handleCloseEditModal();
+    // console.log("selected property ", selectedProperty);
+    
+    try {
+      const res = await axios.put(`http://localhost:3005/Property/updateProperty/${selectedProperty._id}`, editFormData);
+      if (res.data.success) {
+        toast.success(res.data.message);
+        getAllProperties();
+        setEditFormData({});
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response.data.message);
+    }
+  };
 
+  const handleConfirmDelete = async () => {
+    handleCloseDeleteModal();
+    try {
+      const res = await axios.delete(`http://localhost:3005/Property/deleteProperty/${selectedProperty._id}`);
+      if (res.data.success) {
+        toast.success(res.data.message);
+        getAllProperties();
+      }
+    }
+    catch (error) {
+      console.log(error);
+      toast.error(error.res.data.message);
+    }
+  };
   const handleView = (property) => {
     setSelectedProperty(property);
     setViewModalOpen(true);
@@ -102,37 +152,8 @@ const PropertyTable = () => {
     });
   };
   
-  const handleAddProperty=async()=>{
-    try{
-      const res=await axios.post(`http://localhost:3005/Property/createProperty`,addFormData);
-      if(res.data.success){
-        toast.success("property added successfully!");
-        handleCloseAddModal();
-        getAllProperties();
-        //reset form data
-        setAddFormData({
-          Name:"",
-          PropertyType:"",
-          Address:"",
-          Price:"",
-          AreaSqft:"",
-          Furnishing:"",
-          status:"Available"
-        });
-      }
-    }catch(error){
-      console.error("error adding property",error);
-      toast.error(error.res?.data?.message||"failed to add property");
-    }
-    }
-    const handleChangePage = (event, newPage) => {
-      setPage(newPage);
-    };
+  
     
-    const handleChangeRowsPerPage = (event) => {
-      setRowsPerPage(parseInt(event.target.value, 10));
-      setPage(0); // Reset to first page
-    };
   const handleSearchChange = (e) => {
     console.log("target", e.target);
 
@@ -155,48 +176,12 @@ const PropertyTable = () => {
 
     setProperties(filtered);
   };
-
-  const handleUpdate = () => {
-    console.log("Updating property:", editFormData);
-    // Here you would typically make an API call to update the property
-    handleCloseEditModal();
-  }
-
-  const handleConfirmDelete = async () => {
-    handleCloseDeleteModal();
-    try {
-      const res = await axios.delete(`http://localhost:3005/Property/deleteProperty/${selectedProperty._id}`);
-      if (res.data.success) {
-        toast.success(res.data.message);
-        getAllProperties();
-      }
-    }
-    catch (error) {
-      console.log(error);
-      toast.error(error.res.data.message);
-    }
-  };
-  // const handleTitleChange = (id, newTitle) => {
-  //   setProperties((prev) =>
-  //     prev.map((property) => (property._id === id ? { ...property, Name: newTitle } : property))
+  
+  // const handlestatusChange = (id, newstatus) => {
+  //   setData((prevData) =>
+  //     prevData.map((row) => (row.id === id ? { ...row, status: newstatus } : row))
   //   );
   // };
-  const handleTypeChange = (id, newType) => {
-    setProperties((prev) =>
-      prev.map((property) => (property._id === id ? { ...property, PropertyType: newType } : property))
-    );
-  };
-
-  const handleFurnishingChange = (id, newFurnishing) => {
-    setProperties((prev) =>
-      prev.map((property) => (property._id === id ? { ...property, Furnishing: newFurnishing } : property))
-    );
-  };
-  const handlestatusChange = (id, newstatus) => {
-    setData((prevData) =>
-      prevData.map((row) => (row.id === id ? { ...row, status: newstatus } : row))
-    );
-  };
   const dropdownFields = ["status", "Furnishing", "PropertyType"]; // edit model mein drop down ke liye ye easy pdega
 
 const dropdownOptions = {
@@ -205,9 +190,9 @@ const dropdownOptions = {
   PropertyType: ["Apartment", "House", "Commercial","Land","Villa","Office"],
 };
   return (
-    <div className="p-4">
-      <Box
-        sx={{
+    <div className="p-4"> 
+    <Box
+          sx={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center', // center horizontally
@@ -215,8 +200,9 @@ const dropdownOptions = {
           marginTop: 4,
           marginBottom:4,
           marginLeft:100
-        }}
-      >
+        }}>
+        
+
         <TextField
           label="Search"
           variant="outlined"
@@ -229,19 +215,15 @@ const dropdownOptions = {
           }}
           sx={{ maxWidth: '260px' }}
         />
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={handleOpenAddModal}
-          sx={{
+          <Button
+           variant="contained"
+           startIcon={<AddIcon />}
+           onClick={handleOpenAddModal}
+           sx={{
             height: '50px',
             backgroundColor: 'rgb(4, 4,40)',
             color: '#ffffff',
-            textTransform: 'capitalize',
-          }}
-        >
-         Add Property
-        </Button>
+            textTransform: 'capitalize',}}>Add Property</Button>
       </Box>
       <TableContainer component={Paper} style={{ marginTop: "20px", maxHeight: "400px", overflow: "auto" }}>
         <Table className="w-full border border-gray-300 " >
@@ -265,40 +247,12 @@ const dropdownOptions = {
 
                 <TableCell sx={{ marginLeft: "4px", fontSize: "15px" }} className="border p-2">{index + 1}</TableCell>
                 <TableCell sx={{ marginLeft: "4px", fontSize: "15px" }} className="border p-2">{property.Name}</TableCell>
-                <TableCell sx={{ marginLeft: "4px", fontSize: "15px" }} className="border p-2">
-                 <Select value={property.PropertyType}
-                    onChange={(e) => handleTypeChange(property.id, e.target.value)}
-                    className="border p-1 rounded">
-                    <MenuItem value="Apartment">Apartment</MenuItem>
-                    <MenuItem value="House">House</MenuItem>
-                    <MenuItem value="Commercial">Commercial</MenuItem>
-                    <MenuItem value="Land">Land</MenuItem>
-                    <MenuItem value="Villa">Villa</MenuItem>
-                    <MenuItem value="Office">Office</MenuItem>
-                  </Select>
-                </TableCell>
+                <TableCell sx={{ marginLeft: "4px", fontSize: "15px" }} className="border p-2">{property.PropertyType}</TableCell>
                 <TableCell sx={{ marginLeft: "4px", fontSize: "15px" }} className="border p-2">{property.Address}</TableCell>
                 <TableCell sx={{ marginLeft: "4px", fontSize: "15px" }} className="border p-2">{property.Price}</TableCell>
                 <TableCell sx={{ marginLeft: "4px", fontSize: "15px" }} className="border p-2">{property.AreaSqft}</TableCell>
-                <TableCell sx={{ marginLeft: "4px", fontSize: "15px" }} className="border p-2">
-                 <Select value={property.Furnishing}
-                    onChange={(e) => handleFurnishingChange(property.id, e.target.value)}
-                    className="border p-1 rounded">
-                    <MenuItem value="Furnished">Furnished</MenuItem>
-                    <MenuItem value="Semi-Furnished">Semi-Furnished</MenuItem>
-                    <MenuItem value="Unfurnished">Unfurnished</MenuItem>
-                  </Select></TableCell>
-                <TableCell sx={{ marginLeft: "4px", fontSize: "15px" }} className="border p-2">
-                  <Select value={property.status}
-                    onChange={(e) => handlestatusChange(property.id, e.target.value)}
-                    className="border p-1 rounded"
-                  >
-                    <MenuItem value="Available">Available</MenuItem>
-                    <MenuItem value="Sold">Sold</MenuItem>
-                    <MenuItem value="Rented">Rented</MenuItem>
-                    <MenuItem value="Pending">Pending</MenuItem>
-                  </Select></TableCell>
-
+                <TableCell sx={{ marginLeft: "4px", fontSize: "15px" }} className="border p-2">{property.Furnishing}</TableCell>
+                <TableCell sx={{ marginLeft: "4px", fontSize: "15px" }} className="border p-2">{property.status}</TableCell>
                 <TableCell sx={{ fontWeight: "bolder" }} className="border p-2">
                   <div style={{ display: "flex", gap: "5px", justifyContent: "center" }}>
                     <IconButton sx={{ color: "blue" }} onClick={() => handleView(property)}><Visibility />
@@ -324,7 +278,9 @@ const dropdownOptions = {
           </Box>
           {selectedProperty && (
             <Grid container spacing={2} mt={2}>
-              {Object.entries(selectedProperty).map(([key, value]) => (
+              {Object.entries(selectedProperty)
+              .filter(([key]) => key!=="__v" && key !== "_id" )
+              .map(([key, value]) => (
                 <Grid item xs={6} key={key}>
                   <Typography><strong>{key}:</strong> {value}</Typography>
                 </Grid>

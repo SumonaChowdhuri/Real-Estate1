@@ -5,9 +5,9 @@ import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import axios from "axios";
 import { toast } from "react-toastify";
-import {useNavigate} from "react-router-dom";
+// import {useNavigate} from "react-router-dom";
 const AgentTable = () => {
-  const [data, setData] = useState([]);
+  
 
   const modalStyle = {
     position: 'absolute',
@@ -49,6 +49,29 @@ const AgentTable = () => {
     Rate:"",
     Status:"Available",
   });
+  const handleAddAgent=async()=>{
+    try{
+      const res=await axios.post(`http://localhost:3005/Agent/createAgent`,addFormData);
+      if(res.data.success){
+        toast.success("Agent added successfully!");
+        handleCloseAddModal();
+        getAllAgents();
+        //reset form data
+        setAddFormData({
+          Name:"",
+          Email:"",
+          Address:"",
+          License:"",
+          Experience:"",
+          Rate:"",
+          Status:"Active"
+        });
+      }
+    }catch(error){
+      console.error("error adding Agent",error);
+      toast.error(error.res?.data?.message||"failed to add Agent");
+    }
+    }
   const getAllAgents=async()=>{
     try{
       const res=await axios.get(`http://localhost:3005/Agent/getAllAgent`)
@@ -98,29 +121,7 @@ const AgentTable = () => {
     });
   };
   
-  const handleAddAgent=async()=>{
-    try{
-      const res=await axios.post(`http://localhost:3005/Agent/createAgent`,addFormData);
-      if(res.data.success){
-        toast.success("Agent added successfully!");
-        handleCloseAddModal();
-        getAllAgents();
-        //reset form data
-        setAddFormData({
-          Name:"",
-          Email:"",
-          Address:"",
-          License:"",
-          Experience:"",
-          Rate:"",
-          Status:"Available"
-        });
-      }
-    }catch(error){
-      console.error("error adding Agent",error);
-      toast.error(error.res?.data?.message||"failed to add property");
-    }
-    }
+  
   const handleSearchChange = (e) => {
     console.log("target", e.target);
     const value = e.target.value.toLowerCase();
@@ -143,11 +144,20 @@ const AgentTable = () => {
     setAgents(filtered);
 };
 
-  const handleUpdate = () => {
-    console.log("Updating Agent:", editFormData);
-    // Here you would typically make an API call to update the Agent
-    handleCloseEditModal();
+const handleUpdate = async () => {
+  handleCloseEditModal();
+  try {
+    const res = await axios.put(`http://localhost:3005/Agent/updateAgent/${selectedAgent._id}`,editFormData);
+    if (res.data.success) {
+      toast.success(res.data.message);
+      getAllAgents();
+      setEditFormData({});
+    }
+  } catch (error) {
+    console.log(error);
+    toast.error(error.response.data.message);
   }
+};
 
   const handleConfirmDelete = async () => {
     handleCloseDeleteModal();
@@ -163,14 +173,9 @@ const AgentTable = () => {
       toast.error(error.res.data.message);
     }
   };
-  
-  const handleStatusChange = (id, newStatus) => {
-    setData((prevData) =>
-      prevData.map((row) => (row.id === id ? { ...row, Status: newStatus } : row))
-    );
-  };
+
   return (
-    <div className="p-4">
+    <div className="p-4">Agent Table
     <Box
         sx={{
           display: 'flex',
@@ -235,16 +240,7 @@ const AgentTable = () => {
               <TableCell className="border p-2">{Agent.License}</TableCell>
               <TableCell className="border p-2">{Agent.Experience}</TableCell>
               <TableCell className="border p-2">{Agent.Rate}</TableCell>
-              <TableCell className="border p-2">
-                <Select
-                  value={Agent.Status}
-                  onChange={(e) => handleStatusChange(Agent.id, e.target.value)}
-                  className="border p-1 rounded"
-                >
-                  <MenuItem value="Active">Active</MenuItem>
-                  <MenuItem value="InActive">InActive</MenuItem>
-                </Select>
-              </TableCell>
+              <TableCell className="border p-2">{Agent.Status}</TableCell>
               <TableCell className="border p-2">
                  <div    style={{ display: "flex", gap: "5px", justifyContent: "center"  }}>
                   <IconButton sx={{color:"blue"}} onClick={() => handleView(Agent)}>
@@ -273,7 +269,9 @@ const AgentTable = () => {
           </Box>
           {selectedAgent && (
             <Grid container spacing={2} mt={2}>
-              {Object.entries(selectedAgent).map(([key, value]) => (
+              {Object.entries(selectedAgent)
+              .filter(([key]) => key !=="__v" && key !== "_id" && key !== "updatedAt" && key !== "createdAt" )
+              .map(([key, value]) => (
                 <Grid item xs={6} key={key}>
                   <Typography><strong>{key}:</strong> {value}</Typography>
                 </Grid>
@@ -293,7 +291,9 @@ const AgentTable = () => {
       </IconButton>
     </Box>
     <Grid container spacing={2} mt={2}>
-      {Object.keys(editFormData).map((field) => (
+      {Object.keys(editFormData)
+      .filter((field) => field !== "createdAt" && field !== "updatedAt" && field !== "__v" && field!=="_id")
+      .map((field) => (
         <Grid item xs={6} key={field}>
           {field === "Status" ? (
             <FormControl fullWidth>
@@ -337,11 +337,11 @@ const AgentTable = () => {
         </Box>
       </Modal>
 
-       {/* Add property Modal  */}
+       {/* Add agent Modal  */}
        <Modal open={addModalOpen} onClose={handleCloseAddModal}>
         <Box sx={modalStyle}>
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-            <Typography variant="h6" fontWeight="bold">Add New Property</Typography>
+            <Typography variant="h6" fontWeight="bold">Add New Agent</Typography>
             <IconButton onClick={handleCloseAddModal}>
               <CloseIcon />
             </IconButton>
@@ -364,6 +364,16 @@ const AgentTable = () => {
                 name="Email"
                 value={addFormData.Email}
                 onChange={handleAddInputChange('Email')}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Phone"
+                name="Phone"
+                value={addFormData.Phone}
+                onChange={handleAddInputChange('Phone')}
                 required
               />
             </Grid>
@@ -420,9 +430,9 @@ const AgentTable = () => {
                   onChange={handleAddInputChange('Status')}
                   required
                 >
-                  <MenuItem value="Available">Available</MenuItem>
-                  <MenuItem value="Sold">Sold</MenuItem>
-                  <MenuItem value="Rented">Rented</MenuItem>
+                  <MenuItem value="Active">Active</MenuItem>
+                  <MenuItem value="InActive">InActive</MenuItem>
+                  
                 </Select>
               </FormControl>
             </Grid>

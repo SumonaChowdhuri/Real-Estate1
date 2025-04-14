@@ -62,6 +62,7 @@ export const updateBuyers = async (req, res) => {
         );
 
         res.json({
+            success:true,
             message: 'Buyers updated successfully',
             buyers: updatedBuyers
         });

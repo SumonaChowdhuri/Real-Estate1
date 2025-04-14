@@ -3,12 +3,12 @@ import Lease from "../models/Lease.js";
 export const createLease = async (req, res) => {//controller hai
     try {// use for  catch error
 
-        const { Name,Email,Phone, Address,StartDate, EndDate, MonthlyRent,Deposit,status,LeaseStatus } = req.body;
-        if(!Name || !Email || !Phone|| !Address || !StartDate|| !EndDate || !MonthlyRent||! Deposit|| !status||!LeaseStatus) {
+        const { Name,Email,Phone, Address,StartDate, EndDate, MonthlyRent,Deposit,Status,LeaseStatus } = req.body;
+        if(!Name || !Email || !Phone|| !Address || !StartDate|| !EndDate || !MonthlyRent||! Deposit|| !Status||!LeaseStatus) {
             return res.status(400).json({ success: false, message: 'All fields are required!' });
         }
 
-        await Lease.create({ Name,Email,Phone, Address,StartDate, EndDate, MonthlyRent,Deposit,status,LeaseStatus})
+        await Lease.create({ Name,Email,Phone, Address,StartDate, EndDate, MonthlyRent,Deposit,Status,LeaseStatus})
         res.status(201).json({
             success:true,
             message: 'Lease created successfully'
@@ -43,7 +43,7 @@ export const getLeaseById = async (req, res) => {
 
 export const updateLease = async (req, res) => {
     try {
-        const { Name, Email, Phone, Address, StartDate, EndDate, MonthlyRent ,Deposit, status ,LeaseStatus } = req.body;
+        const { Name, Email, Phone, Address, StartDate, EndDate, MonthlyRent ,Deposit, Status ,LeaseStatus } = req.body;
         const leaseId = req.params.id; 
 
         const existingLease = await Lease.findById(leaseId);
@@ -52,7 +52,7 @@ export const updateLease = async (req, res) => {
         }
 
         const updateData = {
-            Name, Email, Phone, Address, StartDate, EndDate, MonthlyRent ,Deposit, status ,LeaseStatus 
+            Name, Email, Phone, Address, StartDate, EndDate, MonthlyRent ,Deposit, Status ,LeaseStatus 
         };
 
         const updatedLease = await Lease.findByIdAndUpdate(
@@ -62,6 +62,7 @@ export const updateLease = async (req, res) => {
         );
 
         res.json({
+            success:true,
             message: 'Lease updated successfully',
             lease: updatedLease
         });

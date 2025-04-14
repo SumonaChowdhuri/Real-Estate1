@@ -1,6 +1,6 @@
 import { useState,useEffect } from "react";
-import { InputAdornment,Table, TableHead, TableBody, TableRow, TableCell, Select, MenuItem, IconButton ,Modal, Box, Typography, Grid, TextField, Button ,TableContainer,Paper} from "@mui/material";
-import { Visibility, Edit, Delete, Close as CloseIcon  } from "@mui/icons-material";
+import { FormControl,InputLabel,InputAdornment,Table, TableHead, TableBody, TableRow, TableCell, Select, MenuItem, IconButton ,Modal, Box, Typography, Grid, TextField, Button ,TableContainer,Paper} from "@mui/material";
+import { Visibility, Edit, Delete, Close as CloseIcon, Phone, Room  } from "@mui/icons-material";
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import axios from "axios"
@@ -28,6 +28,7 @@ const BuyersTable = () => {
     textAlign: 'center'
   };
 
+  const [addModalOpen,setAddModalOpen]=useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -35,10 +36,44 @@ const BuyersTable = () => {
   const [editFormData, setEditFormData] = useState({});
   const [buyers,setBuyers]=useState([]);
   
+  const [searchTerm,setSearchTerm]=useState("");
+  const[apiBuyers,setApiBuyers]=useState([]);
+  
+  const [addFormData,setAddFormData]=useState({
+    Buyers:"",
+    Email:"",
+    Phone:"",
+    Address:"",
+    Room:"",
+    Status:"Available",
+  });
+  const handleAddBuyer=async()=>{
+    try{
+      const res=await axios.post(`http://localhost:3005/Buyers/createBuyers`,addFormData);
+      if(res.data.success){
+        toast.success("Buyer added successfully!");
+        handleCloseAddModal();
+        getAllBuyers();
+        //reset form data
+        setAddFormData({
+          Buyers:"",
+          Email:"",
+          Phone:"",
+          Address:"",
+          Room:"",
+          Status:"Available",
+        });
+      }
+    }catch(error){
+      console.error("error adding Buyer",error);
+      toast.error(error.res?.data?.message||"failed to add property");
+    }
+    }
   const getAllBuyers=async()=>{
-    const res=await axios.get(`http://localhost:3005/buyers/getAllBuyers`)
+    const res=await axios.get(`http://localhost:3005/Buyers/getAllBuyers`)
     console.log(res.data)
     setBuyers(res.data);
+    setApiBuyers(res.data);
   }
   useEffect(()=>{
     getAllBuyers()
@@ -59,18 +94,57 @@ const BuyersTable = () => {
     setSelectedBuyers(Buyers);
     setDeleteModalOpen(true);
   };
-
+  const handleOpenAddModal = () => setAddModalOpen(true);
+  const handleCloseAddModal = () => {
+    console.log("hello");
+    setAddModalOpen(false);
+  }
   const handleCloseViewModal = () => setViewModalOpen(false);
   const handleCloseEditModal = () => setEditModalOpen(false);
   const handleCloseDeleteModal = () => setDeleteModalOpen(false);
 
+  const handleAddInputChange = (field) => (e) => {
+    setAddFormData({
+      ...addFormData,[field]:e.target.value,
+    });
+  };
+
+  const handleSearchChange = (e) => {
+    console.log("target", e.target);
+    const value = e.target.value.toLowerCase();
+    setSearchTerm(value);
+
+    if (value === "") {
+        setBuyers(apiBuyers); // Reset to full list when search is empty
+        return;
+    }
+
+    const filtered = apiBuyers.filter((Buyer) => {
+      return (
+        Buyer.Name.toLowerCase().includes(value) ||   // Name = gfdgf.includes(gfdgf)
+        Buyer.Room.toString().toLowerCase().includes(value)
+      );
+    });
+
+    setBuyers(filtered);
+};
   const handleEditInputChange = (field) => (e) => {
     setEditFormData({ ...editFormData, [field]: e.target.value });
   };
 
-  const handleUpdate = () => {
-    setData(data.map(item => item.id === editFormData.id ? editFormData : item));
+  const handleUpdate = async () => {
     handleCloseEditModal();
+    try {
+      const res = await axios.put(`http://localhost:3005/Buyers/updateBuyers/${selectedBuyers._id}`,editFormData);
+      if (res.data.success) {
+        toast.success(res.data.message);
+        getAllBuyers();
+        setEditFormData({});
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response.data.message);
+    }
   };
 
   const handleConfirmDelete = async () => {
@@ -87,11 +161,11 @@ const BuyersTable = () => {
       toast.error(error.res.data.message);
     }
   };
-  const handleStatusChange = (id, newStatus) => {
-    setData((prevData) =>
-      prevData.map((row) => (row.id === id ? { ...row, status: newStatus } : row))
-    );
-  };
+  // const handleStatusChange = (id, newStatus) => {
+  //   setData((prevData) =>
+  //     prevData.map((row) => (row.id === id ? { ...row, status: newStatus } : row))
+  //   );
+  // };
 
  
  
@@ -123,6 +197,7 @@ const BuyersTable = () => {
         <Button
           variant="contained"
           startIcon={<AddIcon />}
+          onClick={handleOpenAddModal}
           sx={{
             height: '50px',
             backgroundColor: 'rgb(4, 4,40)',
@@ -156,17 +231,7 @@ const BuyersTable = () => {
               <TableCell  sx={{ padding: "4px", fontSize: "15px" }} classBuyers="border p-2">{Buyers.Phone}</TableCell>
               <TableCell  sx={{ padding: "4px", fontSize: "15px" }} classBuyers="border p-2">{Buyers.Address}</TableCell>
               <TableCell sx={{ padding: "4px", fontSize: "15px" }}  classBuyers="border p-2">{Buyers.Room}</TableCell>
-              <TableCell  sx={{ padding: "4px", fontSize: "15px" }} classBuyers="border p-2">
-                <Select
-                  value={Buyers.status}
-                  onChange={(e) => handleStatusChange(Buyers.id, e.target.value)}
-                  classBuyers="border p-1 rounded"
-                >
-                  <MenuItem value="Active">Active</MenuItem>
-                  <MenuItem value="InActive">InActive</MenuItem>
-            
-                </Select>
-             </TableCell>
+              <TableCell  sx={{ padding: "4px", fontSize: "15px" }} classBuyers="border p-2">{Buyers.Status}</TableCell>
               <TableCell  sx={{ padding: "4px", fontSize: "15px" }} classBuyers="border p-2">
               <TableCell className="border p-2">
                  <div    style={{ display: "flex", gap: "5px", justifyContent: "center"  }}>
@@ -197,7 +262,9 @@ const BuyersTable = () => {
           </Box>
           {selectedBuyers && (
             <Grid container spacing={2} mt={2}>
-              {Object.entries(selectedBuyers).map(([key, value]) => (
+              {Object.entries(selectedBuyers)
+              .filter(([key]) => key!=="__v" && key !== "_id" )
+              .map(([key, value]) => (
                 <Grid item xs={6} key={key}>
                   <Typography><strong>{key}:</strong> {value}</Typography>
                 </Grid>
@@ -243,6 +310,105 @@ const BuyersTable = () => {
             <Button variant="contained" color="error" onClick={handleConfirmDelete}>DELETE</Button>
           </Box>
         </Box>
+      </Modal>
+      {/* Add Buyer Modal  */}
+      <Modal open={addModalOpen} onClose={handleCloseAddModal}>
+        <Box sx={modalStyle}>
+          <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+            <Typography variant="h6" fontWeight="bold">Add New Agent</Typography>
+            <IconButton onClick={handleCloseAddModal}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+          <Grid container spacing={3}>
+          <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Buyers"
+                name="Buyers"
+                value={addFormData.Buyers}
+                onChange={handleAddInputChange('Buyers')}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Email"
+                name="Email"
+                value={addFormData.Email}
+                onChange={handleAddInputChange('Email')}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Phone"
+                name="Phone"
+                value={addFormData.Phone}
+                onChange={handleAddInputChange('Phone')}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Address"
+                name="Address"
+                value={addFormData.Address}
+                onChange={handleAddInputChange('Address')}
+                required
+              />
+            </Grid>
+            
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Room"
+                name="Room"
+                value={addFormData.Room}
+                onChange={handleAddInputChange('Room')}
+                required
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <InputLabel id="Status">Status</InputLabel>
+                <Select
+                  labelId="Status"
+                  name="status"
+                  value={addFormData.Status}
+                  onChange={handleAddInputChange('Status')}
+                  required
+                >
+                  <MenuItem value="Active">Active</MenuItem>
+                  <MenuItem value="InActive">InActive</MenuItem>
+                  
+                </Select>
+              </FormControl>
+            </Grid>
+            
+            <Grid item xs={12}>
+              <Box display="flex" justifyContent="flex-end" gap={2}>
+                <Button 
+                  variant="outlined" 
+                  onClick={handleCloseAddModal}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  variant="contained" 
+                  color="primary"
+                  onClick={handleAddBuyer}
+                >
+                  Save Buyer
+                </Button>
+              </Box>
+            </Grid>
+          </Grid>
+        </Box>
+        
       </Modal>
     </div>
   );

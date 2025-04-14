@@ -13,8 +13,6 @@ const LayoutSeller=()=>
             <Sidebar/>
             <div className="content">
             <Header className="header" />
-            {/* <Dashboard className="dashboard" /> */}
-            {/* <Search className="search"/> */}
             <Seller className="seller" />
         </div>
         </div>

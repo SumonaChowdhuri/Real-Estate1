@@ -7,12 +7,12 @@ const bookingSchema = new Schema({
     id:{type:Number},
     Name:{type: String},
     Email: {type:String},
-    Phone: {type:Number},
+    Phone: {type:String},
     Address:{type: String},
-    CheckIN :{type:String},
-    CheckOut:{type:String},
+    CheckIN :{type:Number},
+    CheckOut:{type:Number},
     Status:{type:String},
-    Bussinessstatus:{type:String},
+    Bookingstatus:{type:String},
   
 }, { timestamps: true }); // Correct placement of timestamps
 

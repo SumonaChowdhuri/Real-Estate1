@@ -62,6 +62,7 @@ export const updateAgent = async (req, res) => {
         );
 
         res.json({
+            success:true,
             message: 'Agent updated successfully',
             agent: updatedAgent
         });

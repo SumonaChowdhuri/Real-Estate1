@@ -7,6 +7,7 @@ import axios from "axios"
 import { toast } from "react-toastify";
 const FinanceTable = () => {
   const [data, setData] = useState([]);
+
   const modalStyle = {
     position: 'absolute',
     top: '50%',
@@ -35,6 +36,52 @@ const FinanceTable = () => {
   const [editFormData, setEditFormData] = useState({});
   const [finances,setFinance]=useState([]);
 
+  const [addModalOpen,setAddModalOpen]=useState(false);
+  const [searchTerm,setSearchTerm]=useState("");
+  const[apiFinance,setapiFinance]=useState([]);
+  const [addFormData,setAddFormData]=useState({
+    name:"",
+    amount:"",
+    transactionType:"Income",
+    catogery:"Salary",
+    PaymentMode:"cash",
+    TransactionDate:"",
+    status:"paid"
+  })
+   
+  const handleAddInputChange = (field) => (e) => {
+    setAddFormData({
+      ...addFormData,[field]:e.target.value,
+    });
+  };
+  const handleOpenAddModal=()=> setAddModalOpen(true);
+  const handleCloseAddModal = () => { 
+    console.log("hello");
+    setAddModalOpen(false);
+  }
+  const handleAddFinance=async()=>{
+    try{
+      const res=await axios.post(`http://localhost:3005/Finance/createFinance`,addFormData);
+      if(res.data.success){
+        toast.success("Finance added successfully!");
+        handleCloseAddModal();
+        getAllFinance();
+        //reset form data
+        setAddFormData({
+          name:"",
+          amount:"",
+          transactionType:"Income",
+          catogery:"Salary",
+          PaymentMode:"cash",
+          TransactionDate:"",
+          status:"paid"
+        });
+      }
+    }catch (error) {
+      console.error("Full error response:", error.response);
+      toast.error(error.response?.data?.details || "Failed to add Finance");
+    }
+  };
   const getAllFinance=async()=>{
     const res=await axios.get(`http://localhost:3005/finance/getAllFinance`)
     console.log(res.data)
@@ -67,9 +114,19 @@ const FinanceTable = () => {
     setEditFormData({ ...editFormData, [field]: e.target.value });
   };
 
-  const handleUpdate = () => {
-    setData(data.map(item => item.id === editFormData.id ? editFormData : item));
+  const handleUpdate = async () => {
     handleCloseEditModal();
+    try {
+      const res = await axios.put(`http://localhost:3005/Finance/updateFinance/${selectedFinance._id}`,editFormData);
+      if (res.data.success) {
+        toast.success(res.data.message);
+        getAllFinance();
+        setEditFormData({});
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response.data.message);
+    }
   };
 
   const handleConfirmDelete = async () => {
@@ -86,29 +143,6 @@ const FinanceTable = () => {
       toast.error(error.res.data.message);
     }
   };
-  const handleStatusChange = (id, newStatus) => {
-    setData((prevData) =>
-      prevData.map((row) => (row.id === id ? { ...row, status: newStatus } : row))
-    );
-  };
-  const handleLStatusChange = (id, newLStatus) => {
-    setData((prevData) =>
-      prevData.map((row) => (row.id === id ? { ...row, Lstatus: newLStatus } : row))
-    );
-  };
-  const handleKStatusChange = (id, newKStatus) => {
-    setData((prevData) =>
-      prevData.map((row) => (row.id === id ? { ...row, Kstatus: newKStatus } : row))
-    );
-  };
-  const handlePStatusChange = (id, newPStatus) => {
-    setData((prevData) =>
-      prevData.map((row) => (row.id === id ? { ...row, Pstatus: newPStatus } : row))
-    );
-  };
-
-
- 
   
 
   return (
@@ -139,6 +173,7 @@ const FinanceTable = () => {
         <Button
           variant="contained"
           startIcon={<AddIcon />}
+          onClick={handleOpenAddModal}
           sx={{
             height: '50px',
             backgroundColor: 'rgb(4, 4,40)',
@@ -170,54 +205,11 @@ const FinanceTable = () => {
               <TableCell  sx={{ padding: "4px", fontSize: "15px" }} className="border p-2">{index+1}</TableCell>
               <TableCell   sx={{ padding: "4px", fontSize: "15px" }} className="border p-2">{Finance.name}</TableCell>
               <TableCell   sx={{ padding: "4px", fontSize: "15px" }} className="border p-2">{Finance.amount}</TableCell>
-              <TableCell    className="border p-2">
-                <Select
-                  value={Finance.transactionType}
-                  onChange={(e) => handleStatusChange(Finance.id, e.target.value)}
-                  className="border p-1 rounded"
-                >
-                  <MenuItem value="Income">Income</MenuItem>
-                  <MenuItem value="Expence">Expence</MenuItem>
-            
-                </Select>
-             </TableCell>
-             <TableCell    sx={{ padding: "4px", fontSize: "15px" }} className="border p-2">
-                <Select
-                  value={Finance.catogery}
-                  onChange={(e) => handleLStatusChange(Finance.id, e.target.value)}
-                  className="border p-1 rounded"
-                >
-                  <MenuItem value="Salary">Salary</MenuItem>
-                  <MenuItem value="Payment Rent">Payment Rent</MenuItem>
-                  <MenuItem value="Utilities">Utilities</MenuItem>
-            
-                </Select>
-             </TableCell>
-             <TableCell  sx={{ padding: "4px", fontSize: "15px" }} className="border p-2">
-                <Select
-                  value={Finance.PaymentMode}
-                  onChange={(e) => handleKStatusChange(Finance.id, e.target.value)}
-                  className="border p-1 rounded"
-                >
-                  <MenuItem value="cash">cash</MenuItem>
-                  <MenuItem value="Bank Transfer">Bank Transfer</MenuItem>
-                  <MenuItem value="UPI">UPI</MenuItem>
-                  <MenuItem value="Credit Card">Credit Card</MenuItem>
-                  <MenuItem value=" Debit Card">Debit Card</MenuItem>
-                </Select>
-             </TableCell>
+              <TableCell   sx={{ padding: "4px", fontSize: "15px" }} className="border p-2">{Finance.transactionType}</TableCell>
+             <TableCell    sx={{ padding: "4px", fontSize: "15px" }} className="border p-2">{Finance.catogery}</TableCell>
+              <TableCell  sx={{ padding: "4px", fontSize: "15px" }} className="border p-2">{Finance.PaymentMode}</TableCell>
              <TableCell  sx={{ padding: "4px", fontSize: "15px" }}    className="border p-2">{Finance.TransactionDate}</TableCell>
-             <TableCell   className="border p-2">
-                <Select
-                  value={Finance.status}
-                  onChange={(e) => handlePStatusChange(Finance.id, e.target.value)}
-                  className="border p-1 rounded"
-                >
-                  <MenuItem value="Pending">Pending</MenuItem>
-                  <MenuItem value="Completed">Completed </MenuItem>
-                  <MenuItem value="Cancled">Cancled</MenuItem>
-                </Select>
-             </TableCell>
+             <TableCell  sx={{ padding: "4px", fontSize: "15px" }} className="border p-2">{Finance.status}</TableCell>
               <TableCell  sx={{ padding: "4px", fontSize: "15px" }}  className="border p-2">
               <TableCell className="border p-2">
                  <div    style={{ display: "flex", gap: "5px", justifyContent: "center"   }}>
@@ -248,7 +240,9 @@ const FinanceTable = () => {
                 </Box>
                 {selectedFinance && (
                   <Grid container spacing={2} mt={2}>
-                    {Object.entries(selectedFinance).map(([key, value]) => (
+                    {Object.entries(selectedFinance)
+                    .filter(([key]) => key!=="__v" && key !== "_id" )
+                    .map(([key, value]) => (
                       <Grid item xs={6} key={key}>
                         <Typography><strong>{key}:</strong> {value}</Typography>
                       </Grid>
@@ -266,7 +260,9 @@ const FinanceTable = () => {
                   <IconButton onClick={handleCloseEditModal}><CloseIcon /></IconButton>
                 </Box>
                 <Grid container spacing={2} mt={2}>
-                  {Object.keys(editFormData).map((field) => (
+                  {Object.keys(editFormData)
+                  .filter((field) => field !== "createdAt" && field !== "updatedAt" && field !== "__v" && field!=="_id")
+                  .map((field) => (
                     <Grid item xs={6} key={field}>
                      {field === "transactionType"?(
                   <FormControl fullWidth>
@@ -346,6 +342,118 @@ const FinanceTable = () => {
                 </Box>
               </Box>
             </Modal>
+            {/* add modal */}
+      <Modal open={addModalOpen} onClose={handleCloseAddModal}>
+        <Box sx={modalStyle}>
+          <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+            <Typography variant="h6" fontWeight="bold">Add New Lease</Typography>
+            <IconButton onClick={handleCloseAddModal}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+          <Grid container spacing={3}>
+          <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="name"
+                name="name"
+                value={addFormData.name}
+                onChange={handleAddInputChange('name')}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="amount"
+                name="amount"
+                value={addFormData.amount}
+                onChange={handleAddInputChange('amount')}
+                required
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <InputLabel id="transactionType">transactionType</InputLabel>
+                <Select
+                  labelId="transactionType"
+                  name="transactionType"
+                  value={addFormData.transactionType}
+                  onChange={handleAddInputChange('transactionType')}
+                  required
+                >
+                  <MenuItem value="Income">Income</MenuItem>
+                  <MenuItem value="Expence">Expence</MenuItem>
+
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <InputLabel id="catogery">catogery</InputLabel>
+                <Select
+                  labelId="catogery"
+                  name="Status"
+                  value={addFormData.catogery}
+                  onChange={handleAddInputChange('catogery')}
+                  required
+                >
+                  <MenuItem value="Salary">Salary</MenuItem>
+                  <MenuItem value="Payment Rent">Payment Rent</MenuItem>
+                  <MenuItem value="Utilities">Utilities</MenuItem>
+                  
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="TransactionDate"
+                name="TransactionDate"
+                value={addFormData.TransactionDate}
+                onChange={handleAddInputChange('TransactionDate')}
+                required
+              />
+            </Grid>
+            
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <InputLabel id="status">Status</InputLabel>
+                <Select
+                  labelId="status"
+                  name="status"
+                  value={addFormData.status}
+                  onChange={handleAddInputChange('status')}
+                  required
+                >
+                  <MenuItem value="Pending">Pending</MenuItem>
+                  <MenuItem value="Completed">Completed </MenuItem>
+                  <MenuItem value="Cancled">Cancled</MenuItem>
+                  
+                </Select>
+              </FormControl>
+            </Grid>
+            
+            <Grid item xs={12}>
+              <Box display="flex" justifyContent="flex-end" gap={2}>
+                <Button 
+                  variant="outlined" 
+                  onClick={handleCloseAddModal}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  variant="contained" 
+                  color="primary"
+                  onClick={handleAddFinance}
+                >
+                  Save Finance
+                </Button>
+              </Box>
+            </Grid>
+          </Grid>
+        </Box> 
+      </Modal>
     </div>
   );
 };

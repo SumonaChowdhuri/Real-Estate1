@@ -9,7 +9,7 @@ const buyersSchema = new Schema({
     Email:{type:String}, 
     Phone:{type:Number}, 
     Address:{type:String}, 
-    Room:{type:Number}, 
+    Room:{type:String}, 
     Status:{type:String}
   
 }, { timestamps: true }); // Correct placement of timestamps

@@ -112,12 +112,12 @@ const SellerTable = () => {
           Phone:"",
           PropertyID:"",
           ListedPrice:"",
-          Status:"Available"
+          Status:"Paid"
         });
       }
     }catch(error){
-      console.error("error adding Agent",error);
-      toast.error(error.res?.data?.message||"failed to add property");
+      console.error("error adding Seller",error);
+      toast.error(error.res?.data?.message||"failed to add Seller");
     }
     }
   const handleSearchChange = (e) => {
@@ -141,11 +141,20 @@ const SellerTable = () => {
     setSellers(filtered);
   };
 
-  const handleUpdate = () => {
-    console.log("Updating seller:", editFormData);
-    // Here you would typically make an API call to update the property
+  const handleUpdate = async () => {
     handleCloseEditModal();
-  }
+    try {
+      const res = await axios.put(`http://localhost:3005/Seller/updateSeller/${selectedSeller._id}`,editFormData);
+      if (res.data.success) {
+        toast.success(res.data.message);
+        getAllSellers();
+        setEditFormData({});
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response.data.message);
+    }
+  };
 
   const handleConfirmDelete = async () => {
     handleCloseDeleteModal();
@@ -167,11 +176,11 @@ const SellerTable = () => {
     
   };
 
-  const handleStatusChange = (id, newStatus) => {
-    setData((prevData) =>
-      prevData.map((row) => (row.id === id ? { ...row, Status: newStatus } : row))
-    );
-  };
+  // const handleStatusChange = (id, newStatus) => {
+  //   setData((prevData) =>
+  //     prevData.map((row) => (row.id === id ? { ...row, Status: newStatus } : row))
+  //   );
+  // };
 
   return (
     <div className="p-4">
@@ -237,17 +246,7 @@ const SellerTable = () => {
               <TableCell  sx={{  fontSize: "15px" }} className="border p-2">{seller.Phone}</TableCell>
               <TableCell  sx={{  fontSize: "15px" }} className="border p-2">{seller.PropertyID}</TableCell>
               <TableCell  sx={{  fontSize: "15px" }} className="border p-2">{seller.ListedPrice}</TableCell>
-              <TableCell sx={{  fontSize: "15px" }} className="border p-2">
-                <Select
-                  value={seller.Status}
-                  onChange={(e) => handleStatusChange(seller.id, e.target.value)}
-                  className="border p-1 rounded"
-                >
-                  <MenuItem value="pending">Pending</MenuItem>
-                  <MenuItem value="paid">Paid</MenuItem>
-                  <MenuItem value="overview">Overview</MenuItem>
-                </Select>
-              </TableCell>
+              <TableCell sx={{  fontSize: "15px" }} className="border p-2">{seller.Status}</TableCell>
               <TableCell  sx={{ fontSize: "15px" }} className="border p-2">
               <TableCell className="border p-2">
                  <div    style={{ display: "flex", gap: "5px", justifyContent: "center"  }}>
@@ -278,7 +277,9 @@ const SellerTable = () => {
           </Box>
           {selectedSeller && (
             <Grid container spacing={2} mt={2}>
-              {Object.entries(selectedSeller).map(([key, value]) => (
+              {Object.entries(selectedSeller)
+              .filter(([key]) => key!=="__v" && key !== "_id" )
+              .map(([key, value]) => (
                 <Grid item xs={6} key={key}>
                   <Typography><strong>{key}:</strong> {value}</Typography>
                 </Grid>
@@ -298,12 +299,26 @@ const SellerTable = () => {
           <Grid container spacing={2} mt={2}>
             {Object.keys(editFormData).map((field) => (
               <Grid item xs={6} key={field}>
-                <TextField
+                {field === "Status"?(
+                  <FormControl fullWidth>
+                    <InputLabel>Status</InputLabel>
+                    <Select label="Status"
+                     value={editFormData.Status||''}
+                     onChange={handleEditInputChange("Status")}
+                     >
+                     <MenuItem value="Active">Active</MenuItem>
+                     <MenuItem value="Inactive">Inactive</MenuItem>
+                    </Select>
+                  </FormControl>
+                     ):(
+                  <TextField
                   label={field}
                   value={editFormData[field] || ''}
                   onChange={handleEditInputChange(field)}
                   fullWidth
                 />
+                )}
+                
               </Grid>
             ))}
           </Grid>
@@ -325,7 +340,7 @@ const SellerTable = () => {
           </Box>
         </Box>
       </Modal>
-      {/* Add property Modal  */}
+      {/* Add seller Modal  */}
       <Modal open={addModalOpen} onClose={handleCloseAddModal}>
         <Box sx={modalStyle}>
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
@@ -408,9 +423,9 @@ const SellerTable = () => {
                   onChange={handleAddInputChange('Status')}
                   required
                 >
-                  <MenuItem value="Available">Available</MenuItem>
-                  <MenuItem value="Sold">Sold</MenuItem>
-                  <MenuItem value="Rented">Rented</MenuItem>
+                  <MenuItem value="pending">Pending</MenuItem>
+                  <MenuItem value="paid">Paid</MenuItem>
+                  <MenuItem value="overview">Overview</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
@@ -428,7 +443,7 @@ const SellerTable = () => {
                   color="primary"
                   onClick={handleAddSeller}
                 >
-                  Save Agent
+                  Save Seller
                 </Button>
               </Box>
             </Grid>

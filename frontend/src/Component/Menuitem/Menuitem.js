@@ -8,22 +8,22 @@ const Menuitem = [
     {
       icon: 'property.png',
       label: "Property",
-      href: "/property",
+      href: "/Property",
     },
     {
        icon: "seller.png",
        label: "Seller",
-       href: "/seller",
+       href: "/Seller",
       },
     {
       icon: "agent.png",
       label: " Agent",
-      href: "/agent",
+      href: "/Agent",
     },
     {
       icon: "lease.png",
       label: "Lease",
-      href: "/lease",
+      href: "/Lease",
     },
     {
       icon: "booking.png",
@@ -33,15 +33,26 @@ const Menuitem = [
     {
       icon: "finance.png",
       label: "Finance",
-      href: "/finance",
+      href: "/Finance",
     },
     {
       icon:"buyers.png",
       label:"Buyers",
-      href:"/buyers",
+      href:"/Buyers",
 
     },
+    {
+      icon:"siteVisit.png",
+      label:"Site Visit",
+      href:"/SiteVisit",
 
+    },
+    {
+      icon:"developers.png",
+      label:"Projects",
+      href:"/Project",
+
+    },
 ];
 
 export default Menuitem;

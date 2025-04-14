@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import SignUp from "./Auth/SignUp";
 import SignIn from "./Auth/SignIn";
 import Forgot from "./Auth/Forgot";
 import LayoutDashboard from "./Layout/LayoutDashboard";
@@ -9,6 +10,9 @@ import LayoutBuyers from "./Layout/LayoutBuyers";
 import LayoutLease from "./Layout/LayoutLease";
 import LayoutFinance from "./Layout/LayoutFinance";
 import LayoutSeller from "./Layout/LayoutSeller";
+import LayoutProject from "./Layout/LayoutProject";
+import LayoutSite from "./Layout/LayoutSite";
+
 import { ToastContainer } from "react-toastify";
 function App() {
   return (
@@ -16,6 +20,7 @@ function App() {
     <ToastContainer/>
       <Routes>
         <Route path="/SignIn" element={<SignIn />}/>
+        <Route path="/SignUp" element={<SignUp />}/>
         <Route path="/" element={<LayoutDashboard/>}/>
         <Route path="/Forgot" element={<Forgot />}/>
         <Route path="/Property" element={<LayoutProperty/>}/>
@@ -25,6 +30,8 @@ function App() {
         <Route path="/Lease" element={<LayoutLease/>}/>
         <Route path="/Finance" element={<LayoutFinance/>}/>
         <Route path="/Seller" element={<LayoutSeller/>}/>
+        <Route path="/SiteVisit" element={<LayoutSite/>}/>
+        <Route path="/project" element={<LayoutProject/>}/>
       </Routes>
     </BrowserRouter>
   );

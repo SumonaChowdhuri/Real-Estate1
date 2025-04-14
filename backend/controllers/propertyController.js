@@ -62,6 +62,7 @@ export const updateProperty = async (req, res) => {
         );
 
         res.json({
+            success:true,
             message: 'Property updated successfully',
             property: updatedProperty
         });

@@ -11,7 +11,7 @@ const SignIn=()=>
             noValidate// user bina email or password ke submit kare to submit ho jata hai//if you submit the form then your details are saved automatically , next time your form is automatically filed 
             autoComplete="off" className="register"> 
 
-            <Box className="header_title">Register</Box>     
+            <Box className="header_title">Login</Box>     
 
             <Box className="signIn">  
 
@@ -30,16 +30,14 @@ const SignIn=()=>
           id="password"
           label="Enter Password"
         />
-            
-         <Box className="forgot_password">
+          
+          <Button className="primary_button " sx={{width:"400px"}}>Login</Button>
+          <Box className="forgot_password">
             <Box className="forgot">Forgot Password</Box>
          </Box>
-          
-          <Button className="primary_button">Register</Button>
             
          <Box className="account">
-            <Box>Already an account</Box>
-            <Box className="forgot">Login</Box>
+            <Button className="primary_button" sx={{width:"400px"}}>Already an account</Button>
          </Box>
 
           </Box> 

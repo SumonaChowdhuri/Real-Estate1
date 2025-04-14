@@ -6,11 +6,11 @@ const { Schema, model } = mongoose;
 const leaseSchema = new Schema({
     Name: {type:String},
     Email:{type: String},
-    Phone:{type: Number},
+    Phone:{type: String},
     Address:{type: String},
     StartDate :{type:String},
     Enddate:{type:String},
-    MonthlyRent:{type:Number},
+    MonthlyRent:{type:String},
     Deposit:{type:String},
     status:{type:String},
     LeaseStatus:{type:String},

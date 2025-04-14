@@ -35,9 +35,57 @@ const BookingTable = () => {
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [editFormData, setEditFormData] = useState({});
   const [Booking,setBooking]=useState([])
-  
+  const [addModalOpen,setAddModalOpen]=useState(false);
   const [searchTerm,setSearchTerm]=useState("");
   const[apiBooking,setapiBooking]=useState([]);
+
+  const [addFormData,setAddFormData]=useState({
+    Name:"",
+    Email:"",
+    Address:"",
+    Phone:"",
+    CheckIN:"",
+    CheckOut:"",
+    Status:"paid",
+    Bookingstatus:"confirmed"
+  })
+   
+  const handleAddInputChange = (field) => (e) => {
+    setAddFormData({
+      ...addFormData,[field]:e.target.value,
+    });
+  };
+  const handleOpenAddModal=()=> setAddModalOpen(true);
+  const handleCloseAddModal = () => { 
+    console.log("hello");
+    setAddModalOpen(false);
+  }
+  const handleAddBooking=async()=>{
+    try{
+      const res=await axios.post(`http://localhost:3005/Booking/createBooking`,addFormData);
+      if(res.data.success){
+        toast.success("Booking added successfully!");
+        console.log("Form Data being sent:", addFormData);
+        handleCloseAddModal();
+        getAllBooking();
+        //reset form data
+        setAddFormData({
+          Name:"",
+          Email:"",
+          Phone:"",
+          Address:"",
+          CheckIN:"",
+          CheckOut:"",
+          Status:"paid",
+          Bookingstatus:"confirmed"
+        });
+      }
+    }catch (error) {
+      console.error("Full error response:", error.response);
+      toast.error(error.response?.data?.details || "Failed to add Booking");
+    }
+  };
+  
   const getAllBooking=async()=>{
     try{
       const res=await axios.get(`http://localhost:3005/booking/getAllbooking`)
@@ -98,11 +146,20 @@ const BookingTable = () => {
     setBooking(filtered);
 };
 
-  const handleUpdate = () => {
-    console.log("Updating Booking:", editFormData);
-    // Here you would typically make an API call to update the Booking
-    handleCloseEditModal();
+const handleUpdate = async () => {
+  handleCloseEditModal();
+  try {
+    const res = await axios.put(`http://localhost:3005/Booking/updateBooking/${selectedBooking._id}`,editFormData);
+    if (res.data.success) {
+      toast.success(res.data.message);
+      getAllBooking();
+      setEditFormData({});
+    }
+  } catch (error) {
+    console.log(error);
+    toast.error(error.response.data.message);
   }
+};
   const handleConfirmDelete = async () => {
     handleCloseDeleteModal();
     try {
@@ -118,17 +175,17 @@ const BookingTable = () => {
     }
   };
 
-  const handleStatusChange = (id, newStatus) => {
-    setData((prevData) =>
-      prevData.map((row) => (row.id === id ? { ...row, Status: newStatus } : row))
-    );
-  };
+  // const handleStatusChange = (id, newStatus) => {
+  //   setData((prevData) =>
+  //     prevData.map((row) => (row.id === id ? { ...row, Status: newStatus } : row))
+  //   );
+  // };
 
-  const handleBookingtatusChange = (id, newBookingtatus) => {
-    setData((prevData) =>
-      prevData.map((row) => (row.id === id ? { ...row, Bookingtatus: newBookingtatus } : row))
-    );
-  };
+  // const handleBookingstatusChange = (id, newBookingstatus) => {
+  //   setData((prevData) =>
+  //     prevData.map((row) => (row.id === id ? { ...row, Bookingstatus: newBookingstatus } : row))
+  //   );
+  // };
 
   
 
@@ -160,6 +217,7 @@ const BookingTable = () => {
         <Button
           variant="contained"
           startIcon={<AddIcon />}
+          onClick={handleOpenAddModal}
           sx={{
             height: '50px',
             backgroundColor: 'rgb(4, 4,40)',
@@ -177,8 +235,8 @@ const BookingTable = () => {
           <TableCell sx={{ fontWeight:"bold"}} className="border p-2">id</TableCell>
           <TableCell sx={{ fontWeight:"bold"}} className="border p-2">Name</TableCell>
           <TableCell sx={{ fontWeight:"bold"}} className="border p-2">Email</TableCell>
-          <TableCell sx={{ fontWeight:"bold"}} className="border p-2">Address</TableCell>
           <TableCell sx={{ fontWeight:"bold"}} className="border p-2"> Phone</TableCell>
+          <TableCell sx={{ fontWeight:"bold"}} className="border p-2">Address</TableCell>
           <TableCell sx={{ fontWeight:"bold"}} className="border p-2">CheckIN</TableCell>
           <TableCell sx={{ fontWeight:"bold"}} className="border p-2"> CheckOut</TableCell>
           <TableCell sx={{ fontWeight:"bold"}} className="border p-2">Status</TableCell>
@@ -192,32 +250,12 @@ const BookingTable = () => {
               <TableCell  sx={{  fontSize: "15px" }} className="border p-2">{index+1}</TableCell>
               <TableCell  sx={{  fontSize: "15px" }} className="border p-2">{Booking.Name}</TableCell>
               <TableCell  sx={{ fontSize: "15px" }} className="border p-2">{Booking.Email}</TableCell>
-              <TableCell  sx={{  fontSize: "15px" }} className="border p-2">{Booking.Address}</TableCell>
               <TableCell  sx={{  fontSize: "15px" }} className="border p-2">{Booking.Phone}</TableCell>
+              <TableCell  sx={{  fontSize: "15px" }} className="border p-2">{Booking.Address}</TableCell>
               <TableCell  sx={{  fontSize: "15px" }} className="border p-2">{Booking.CheckIN}</TableCell>
               <TableCell  sx={{  fontSize: "15px" }} className="border p-2">{Booking.CheckOut}</TableCell>
-              <TableCell sx={{  fontSize: "15px" }} className="border p-2">
-                <Select
-                  value={Booking.Status}
-                  onChange={(e) => handleStatusChange(Booking.id, e.target.value)}
-                  className="border p-1 rounded"
-                >
-                  <MenuItem value="pending">Pending</MenuItem>
-                  <MenuItem value="paid">Paid</MenuItem>
-                  <MenuItem value="overview">Overview</MenuItem>
-                </Select>
-              </TableCell>
-              <TableCell className="border p-2">
-                <Select
-                  value={Booking.Bookingstatus}
-                  onChange={(e) => handleBookingtatusChange(Booking.id, e.target.value)}
-                  className="border p-2 rounded"
-                >
-                  <MenuItem value="confirmed">Confirmed</MenuItem>
-                  <MenuItem value="cancled">Canceled</MenuItem>
-                  <MenuItem value="complete">Complete</MenuItem>
-                </Select>
-              </TableCell>
+              <TableCell sx={{  fontSize: "15px" }} className="border p-2">{Booking.Status}</TableCell>
+              <TableCell sx={{  fontSize: "15px" }} className="border p-2">{Booking.Bookingstatus}</TableCell>
               <TableCell  sx={{ fontSize: "15px" }} className="border p-2">
               <TableCell className="border p-2">
                  <div    style={{ display: "flex", gap: "5px", justifyContent: "center"  }}>
@@ -248,7 +286,9 @@ const BookingTable = () => {
           </Box>
           {selectedBooking && (
             <Grid container spacing={2} mt={2}>
-              {Object.entries(selectedBooking).map(([key, value]) => (
+              {Object.entries(selectedBooking)
+              .filter(([key]) => key!=="__v" && key !== "_id" )
+              .map(([key, value]) => (
                 <Grid item xs={6} key={key}>
                   <Typography><strong>{key}:</strong> {value}</Typography>
                 </Grid>
@@ -266,7 +306,9 @@ const BookingTable = () => {
             <IconButton onClick={handleCloseEditModal}><CloseIcon /></IconButton>
           </Box>
           <Grid container spacing={2} mt={2}>
-            {Object.keys(editFormData).map((field) => (
+            {Object.keys(editFormData)
+            .filter((field) => field !== "createdAt" && field !== "updatedAt" && field !== "__v" && field!=="_id")
+            .map((field) => (
               
               <Grid item xs={6} key={field}>
                  
@@ -277,9 +319,9 @@ const BookingTable = () => {
                      value={editFormData.Status||''}
                      onChange={handleEditInputChange("Status")}
                      >
-                     <MenuItem value="pending">Pending</MenuItem>
-                  <MenuItem value="paid">Paid</MenuItem>
-                  <MenuItem value="overview">Overview</MenuItem>
+                     <MenuItem value="pending">pending</MenuItem>
+                  <MenuItem value="paid">paid</MenuItem>
+                  <MenuItem value="overview">overview</MenuItem>
                     </Select>
                   </FormControl>
                 ):field === "Bookingstatus"?(
@@ -289,9 +331,9 @@ const BookingTable = () => {
                      value={editFormData.Status||''}
                      onChange={handleEditInputChange("Bookingstatus")}
                      >
-                     <MenuItem value="Confirmed">Confirmed</MenuItem>
-                  <MenuItem value="Canceled">Canceled</MenuItem>
-                  <MenuItem value="Complete">Complete</MenuItem>
+                     <MenuItem value="confirmed">confirmed</MenuItem>
+                  <MenuItem value="canceled">canceled</MenuItem>
+                  <MenuItem value="complete">complete</MenuItem>
                     </Select>
                   </FormControl>
                 ):(
@@ -325,6 +367,133 @@ const BookingTable = () => {
             <Button variant="contained" color="error" onClick={handleConfirmDelete}>DELETE</Button>
           </Box>
         </Box>
+      </Modal>
+      {/* Add Booking Modal  */}
+      <Modal open={addModalOpen} onClose={handleCloseAddModal}>
+        <Box sx={modalStyle}>
+          <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+            <Typography variant="h6" fontWeight="bold">Add New Booking</Typography>
+            <IconButton onClick={handleCloseAddModal}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+          <Grid container spacing={3}>
+          <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Name"
+                name="Name"
+                value={addFormData.Name}
+                onChange={handleAddInputChange('Name')}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Email"
+                name="Email"
+                value={addFormData.Email}
+                onChange={handleAddInputChange('Email')}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Phone"
+                name="Phone"
+                value={addFormData.Phone}
+                onChange={handleAddInputChange('Phone')}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Address"
+                name="Address"
+                value={addFormData.Address}
+                onChange={handleAddInputChange('Address')}
+                required
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="CheckIN"
+                name="CheckIN"
+                type="number"
+                value={addFormData.CheckIN}
+                onChange={handleAddInputChange('CheckIN')}
+                required
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="CheckOut"
+                name="CheckOut"
+                type="number"
+                value={addFormData.CheckOut}
+                onChange={handleAddInputChange('CheckOut')}
+                required
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <InputLabel id="Status">Status</InputLabel>
+                <Select
+                  labelId="Status"
+                  name="status"
+                  value={addFormData.Status}
+                  onChange={handleAddInputChange('Status')}
+                  required
+                >
+                  <MenuItem value="pending">pending</MenuItem>
+                  <MenuItem value="paid">paid</MenuItem>
+                  <MenuItem value="overview">overview</MenuItem>
+                  
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <InputLabel id="Bookingstatus">Bookingstatus</InputLabel>
+                <Select
+                  labelId="Bookingstatus"
+                  name="Bookingstatus"
+                  value={addFormData.Bookingstatus}
+                  onChange={handleAddInputChange('Bookingstatus')}
+                  required
+                >
+                  <MenuItem value="confirmed">confirmed</MenuItem>
+                  <MenuItem value="cancled">Canceled</MenuItem>
+                  <MenuItem value="complete">complete</MenuItem>
+                  
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12}>
+              <Box display="flex" justifyContent="flex-end" gap={2}>
+                <Button 
+                  variant="outlined" 
+                  onClick={handleCloseAddModal}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  variant="contained" 
+                  color="primary"
+                  onClick={handleAddBooking}
+                >
+                  Save Booking
+                </Button>
+              </Box>
+            </Grid>
+          </Grid>
+        </Box>
+        
       </Modal>
     </div>
   );
