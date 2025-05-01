@@ -16,7 +16,10 @@ const LayoutFinance=()=>
             <div className="content">
             <Header className="header" />
             {/* <Search className="dashboard" /> */}
+            <div className="pages">
             <Finance className="dashboard" />
+              </div>
+            
            
             </div>
         </div>

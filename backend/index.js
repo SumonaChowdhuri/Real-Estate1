@@ -28,11 +28,9 @@ app.use("/finance", financeRouter)
 app.use("/lease", leaseRouter)
 app.use("/property", propertyRouter)
 app.use("/seller", sellerRouter)
-app.use("/siteVisit",siteRouter)
+app.use("/site",siteRouter)
 app.use("/project",projectRouter)
-app.get('/',(req,res) =>{
-    res.send("hello world")
-})
+
 connectDb();
 app.listen(PORT,() =>{
     console.log(`server is running on port ${PORT}`);

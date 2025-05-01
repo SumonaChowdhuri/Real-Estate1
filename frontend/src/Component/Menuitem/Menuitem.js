@@ -44,7 +44,7 @@ const Menuitem = [
     {
       icon:"siteVisit.png",
       label:"Site Visit",
-      href:"/SiteVisit",
+      href:"/Site",
 
     },
     {

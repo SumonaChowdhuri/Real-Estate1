@@ -11,7 +11,10 @@ const Layoutproject = () => {
             <Sidebar/>
             <div className="content">
             <Header className="header" />
-            <Project className="Project" />
+            <div className="pages">
+              <Project className="Project" />
+              </div>
+            
            
             </div>
         </div>

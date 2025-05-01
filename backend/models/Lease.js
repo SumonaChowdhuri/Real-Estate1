@@ -9,10 +9,10 @@ const leaseSchema = new Schema({
     Phone:{type: String},
     Address:{type: String},
     StartDate :{type:String},
-    Enddate:{type:String},
+    EndDate:{type:String},
     MonthlyRent:{type:String},
     Deposit:{type:String},
-    status:{type:String},
+    Status:{type:String},
     LeaseStatus:{type:String},
   
 }, { timestamps: true }); // Correct placement of timestamps

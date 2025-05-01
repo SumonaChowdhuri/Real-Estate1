@@ -1,50 +1,91 @@
-import React from "react";
-import {Box, Button, TextField} from "@mui/material"
+import { useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { Box, Button, TextField } from "@mui/material";
+import { Link } from 'react-router-dom';
+import { useAuth } from "./AuthContext";
 
-const SignIn=()=>
-{
-      return (
-        <>
-          <Box
-            component="form"// define how it work like - form , link
-            sx={{ '& .MuiTextField-root': { m: 1, width: '25ch' } }}// style property dakne ke liye 
-            noValidate// user bina email or password ke submit kare to submit ho jata hai//if you submit the form then your details are saved automatically , next time your form is automatically filed 
-            autoComplete="off" className="register"> 
+const SignIn = () => {
 
-            <Box className="header_title">Login</Box>     
+  const {login} = useAuth();
+  const [email,setEmail]  = useState("");
+  const [password,setPassword] = useState("");
 
-            <Box className="signIn">  
 
-           <TextField 
-           type="email"
-           required
-           id="email"
-           variant="standard"
-           label="Enter Email Id"
-        />
+  const handleLogin = async () => {
+    try {
+      console.log("Sending login request with :" , {Email:email,Password:password});
+      const response = await axios.post(`http://localhost:3005/user/login`, {
+        Email:email,
+        Password:password
+      });
+
+      console.log("Login response:" , response.data);
+
+
+      if (response.data.success) {
+        console.log('Login successfull, token :' , response.data.token);
+      login(response.data.token ,{
+        id:response.data.userId,
+        email:email
+      });
+      toast.success("Login Successfull");
+    } else{
+      console.log("login failed:",response.data.message);
+      toast.error(response.data.message || "Login Failed");
+    }
+  }
+    catch (error) {
+      console.error('Error Logging in:', error);
+      toast.error(error.response?.data?.message || 'Failed to Login');
+    }
+  };
+
+  return (
+    <>
+      <Box
+        component="form"
+        sx={{ '& .MuiTextField-root': { m: 1, width: '25ch' } }}
+        noValidate
+        autoComplete="off"
+        className="register">
         
-         <TextField
-          type="password"
-          required
-           variant="standard"
-          id="password"
-          label="Enter Password"
-        />
-          
-          <Button className="primary_button " sx={{width:"400px"}}>Login</Button>
-          <Box className="forgot_password">
-            <Box className="forgot">Forgot Password</Box>
-         </Box>
-            
-         <Box className="account">
-            <Button className="primary_button" sx={{width:"400px"}}>Already an account</Button>
-         </Box>
+        <Box className="header_title">Login</Box>
+        <Box className="signUp">
+        <TextField
+  type="email"
+  required
+  id="Email"
+  variant="standard"
+  label="Enter Email Id"
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
+/>
 
-          </Box> 
-        
-        </Box> 
-        </>
-      )
-}
+<TextField
+  type="password"
+  required
+  variant="standard"
+  id="Password"
+  label="Enter Password"
+  value={password}
+  onChange={(e) => setPassword(e.target.value)} // typo fix: s ✅
+/>
+
+
+          <Button className="primary_button" onClick={handleLogin}>
+            Log In
+          </Button>
+
+         
+          <Box className="account">
+            <Link to="/sign-up" style={{ textDecoration: 'none', color: '#1976d2' }}>Don't have an account? Sign up</Link>
+          </Box>
+
+        </Box>
+      </Box>
+    </>
+  );
+};
 
 export default SignIn;

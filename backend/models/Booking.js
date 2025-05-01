@@ -4,15 +4,15 @@ import mongoose from 'mongoose';
 const { Schema, model } = mongoose;
 
 const bookingSchema = new Schema({
-    id:{type:Number},
-    Name:{type: String},
-    Email: {type:String},
-    Phone: {type:String},
-    Address:{type: String},
-    CheckIN :{type:Number},
-    CheckOut:{type:Number},
-    Status:{type:String},
-    Bookingstatus:{type:String},
+    Name:{type:String},
+    Email:{type:String},
+    Mobile:{type:Number},
+    Address:{type:String},
+    CheckIN:{type:String},
+    CheckOut:{type:String},
+    TotalAmount:{type:Number},
+    PaymentStatus:{type:String},
+    Bookingstatus:{type:String}
   
 }, { timestamps: true }); // Correct placement of timestamps
 

@@ -10,8 +10,9 @@ const LayoutSite=()=>
         <div className="main-container"><Sidebar/>
             <div className="content">
             <Header className="header" />
-            <SiteVisit className="SiteVisit" />
-            
+            <div className="pages">
+               <SiteVisit className="Site" />
+            </div>
             </div>
         </div>
         </div>

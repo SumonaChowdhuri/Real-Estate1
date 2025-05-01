@@ -2,59 +2,46 @@ import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from 'jsonwebtoken';
 
-export const createUser = async (req, res) => {
-    try {
-
-        const { Password,Email} = req.body;
-        if(!Password || !Email) {
-            return res.status(400).json({ success: false, message: 'All fields are required!' });
-        }
-
-        const existinguser=await User.findOne({Email})
-        if(existinguser){
-            return res.status(400).json({success:false,message:"user Already exists"})
-        }
-
-        const hashedPassword = await bcrypt.hash(Password,10);//10 times loop chlkr passoword ko hash krega security ke liye,bcrypt ek package h 
-        await User.create({Password:hashedPassword,Email})
-        res.status(201).json({
-            success:true,
-            message: 'user created successfully'
-        });
-    } catch (error) {
-        res.status(500).json({ error: 'Error saving the user', details: error.message });
-    }
-};
 export const login = async (req, res) => {
-    const { email, password } = req.body;
+    const { Email, Password } = req.body;
+    console.log('Login attempt with:', { Email, Password: '***' });
+    
     try {
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ Email });
+        console.log('User found:', user ? 'Yes' : 'No');
+        
         if (!user) {
-            return res.status(401).json({ success: false, message:"user doesn't exist" });
-        	}
-
-        const isPasswordValid = await bcrypt.compare(password, User.password);
+            return res.status(401).json({ success: false, message: "User doesn't exist" });
+        }
+        
+        const isPasswordValid = await bcrypt.compare(Password, user.Password);
+        console.log('Password valid:', isPasswordValid);
+        
         if (!isPasswordValid) {
             return res.status(401).json({ success: false, message: 'Invalid credentials' });
         }
 
         const token = jwt.sign(
-            { _id: User._id, email: User.email},
-            process.env.SECRET_KEY,
+            { _id: user._id, email: user.Email },
+            process.env.SECRET_KEY || 'your-secret-key',
             { expiresIn: '1y' }
         );
+        
+        console.log('Token generated:', token.substring(0, 20) + '...');
   
         return res.json({
             success: true,
-            message:'Login successful!',
+            message: 'Login successful!',
             token: token,
-            userId: User._id,
+            userId: user._id,
         });
   
     } catch (error) {
+        console.error('Login error:', error);
         return res.status(500).json({ success: false, message: 'Login failed', error: error.message });
     }
 }
+
 export const getAlluser = async (req, res) => {
     try {
         const users = await User.find();

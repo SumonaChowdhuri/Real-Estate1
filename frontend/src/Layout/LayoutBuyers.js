@@ -12,8 +12,8 @@ const LayoutBuyers=()=>
         <div className="main-container"><Sidebar/>
             <div className="content">
             <Header className="header" />
-            <Buyers className="Buyers" />
-            
+            <div className="pages">
+             <Buyers className="Buyers" /></div>
             </div>
         </div>
         </div>

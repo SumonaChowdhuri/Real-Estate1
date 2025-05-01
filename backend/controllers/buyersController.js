@@ -3,6 +3,7 @@ import Buyer from "../models/Buyers.js";
 export const createBuyers = async (req, res) => {//controller hai
     try {// use for  catch error
 
+        
         const { Buyers, Email, Phone, Address, Room, Status } = req.body;
         if(!Buyers || !Email || !Phone|| !Address  || !Room|| !Status) {
             return res.status(400).json({ success: false, message: 'All fields are required!' });

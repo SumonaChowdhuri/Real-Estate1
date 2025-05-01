@@ -13,7 +13,7 @@ const Forgot=()=>
 
             <Box className="header_title">Register</Box>     
 
-            <Box className="signIn">  
+            <Box className="SignIn">  
 
            <TextField
            type="email"

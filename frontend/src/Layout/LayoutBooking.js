@@ -15,8 +15,8 @@ const LayoutBooking=()=>
             <Header className="header" />
             {/* <Dashboard className="dashboard" /> */}
             {/* <Search className="dashboard" /> */}
-            <Booking className="dashboard" />
-            
+            <div className="pages">
+            <Booking className="dashboard" /></div>
             </div>
         </div>
         </div>

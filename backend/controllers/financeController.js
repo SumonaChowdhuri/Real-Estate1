@@ -3,6 +3,7 @@ import Finance from "../models/Finance.js";
 export const createFinance = async (req, res) => {//controller hai
     try {// use for  catch error
 
+        
         const { name,amount, transactionType, catogery, PaymentMode,TransactionDate, status } = req.body;
         if(!name || !amount || !transactionType|| !catogery || !PaymentMode ||!TransactionDate|| !status) {
             return res.status(400).json({ success: false, message: 'All fields are required!' });

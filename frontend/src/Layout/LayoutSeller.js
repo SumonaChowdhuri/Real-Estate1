@@ -13,7 +13,9 @@ const LayoutSeller=()=>
             <Sidebar/>
             <div className="content">
             <Header className="header" />
-            <Seller className="seller" />
+            <div className="pages">
+               <Seller className="seller" />
+              </div>
         </div>
         </div>
         </div>

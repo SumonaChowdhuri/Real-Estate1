@@ -2,6 +2,7 @@ import project from "../models/project.js";
 
 export const createproject = async(req,res) => {
     try{
+        
         const  {projectName,location,developerName,startDate,endDate,totalUnits,status}= req.body
         if(!projectName||!location||!developerName||!startDate||!endDate||!totalUnits||!status){
             res.status(400).json({success:false,message:"All fields are required"})

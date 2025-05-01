@@ -16,8 +16,9 @@ const LayoutLease=()=>
             <div className="content">
             <Header className="header" />
             {/* <Search className="dashboard" /> */}
-            <Lease className="Lease" />
-             </div>
+            <div className="pages">
+            <Lease className="Lease" /></div>
+            </div>
         </div>
         </div>
 
